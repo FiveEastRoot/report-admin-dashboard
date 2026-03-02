@@ -215,7 +215,8 @@ function renderArticleList() {
       ? `<img class="article-thumb" src="${art.Item_Thumb || art.thumb}" alt="썸네일" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><div class="article-thumb-placeholder" style="display:none">📄</div>`
       : `<div class="article-thumb-placeholder">📄</div>`;
 
-    const title = art.Title_Org || art.title || '(제목 없음)';
+    const title = art.Subtitle || '(제목 없음)';
+    const subtitle = art.Title_Org || art.title || '';
     const category = art.Category_ID || art.category || '';
     const score = art.AI_Score !== undefined ? art.AI_Score : (art.score !== undefined ? art.score : '');
 
@@ -225,6 +226,7 @@ function renderArticleList() {
       ${thumbHtml}
       <div class="article-info">
         <div class="article-title">${escHtml(title)}</div>
+        ${subtitle ? `<div class="article-subtitle" style="font-size:11px; color:var(--text-muted); margin-bottom:4px;">${escHtml(subtitle)}</div>` : ''}
         <div class="article-meta">
           ${category ? `<span class="tag tag-category">${escHtml(String(category))}</span>` : ''}
           ${score !== '' ? `<span class="tag tag-score">⭐ ${score}</span>` : ''}
