@@ -1,7 +1,7 @@
 // netlify/functions/gas-proxy.js
 // GAS CORS 우회 프록시: 브라우저 → 이 함수 → GAS (서버-서버 통신)
 
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbxM3CM8ea-DwyuUXdWhtSd5acYR31k_4pIfMpE8wEixF5G29MtMBYgCX86KFEM_XTLy/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwWvMIpJN-S2vBsV-AvW8peJwV_Q2pyIB1ftHSIS85f-VYVtWNsrgax7D5INLr0QchJ/exec';
 
 exports.handler = async (event) => {
     // CORS preflight (OPTIONS) 처리
