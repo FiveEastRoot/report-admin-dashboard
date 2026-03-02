@@ -288,7 +288,7 @@ function selectArticle(art, cardEl) {
   setImagePreview('Item_Thumb', thumbUrl);
 
   // Labels
-  const title = art.Title_Org || art.title || '기사 편집';
+  const title = art.Subtitle || '기사 편집';
   DOM.activeTitleLabel.textContent = title.length > 40 ? title.slice(0, 40) + '…' : title;
   DOM.activeUuidLabel.textContent = art.uuid;
 
@@ -382,12 +382,19 @@ function renderModalList(articles) {
     item.className = 'modal-article-item' + (existing.has(art.uuid) ? ' already-added' : '');
     item.dataset.uuid = art.uuid;
 
+    // Use Subtitle as the main display title, and Title_Org as subtitle
+    const title = art.Subtitle || '(제목 없음)';
+    const subtitle = art.Title_Org || art.title || '';
+    const catHtml = art.category ? `<span class="tag tag-category">${escHtml(art.category)}</span>` : '';
+    const scoreHtml = art.score ? `<span class="tag tag-score">★ ${art.score}</span>` : '';
+
     item.innerHTML = `
       <div class="modal-article-info">
-        <div class="modal-article-title">${escHtml(art.title || '')}</div>
+        <div class="modal-article-title">${escHtml(title)}</div>
+        ${subtitle ? `<div class="modal-article-subtitle" style="font-size:11px; color:var(--text-muted); margin-bottom:4px;">${escHtml(subtitle)}</div>` : ''}
         <div class="modal-article-meta">
-          ${art.category ? `<span class="tag tag-category">${escHtml(String(art.category))}</span>` : ''}
-          ${art.score != null ? `<span class="tag tag-score">⭐ ${art.score}</span>` : ''}
+          ${catHtml}
+          ${scoreHtml}
           ${art.date ? `<span class="tag" style="background:rgba(255,255,255,0.06);color:var(--text-muted)">${escHtml(art.date)}</span>` : ''}
         </div>
       </div>
@@ -407,7 +414,7 @@ function renderModalList(articles) {
 function addArticleFromModal(art) {
   state.articles.push(art);
   renderArticleList();
-  showToast(`"${(art.title || art.uuid).slice(0, 30)}…" 추가됨`, 'success');
+  showToast(`"${(art.Subtitle || art.Title_Org || art.title || art.uuid).slice(0, 30)}…" 추가됨`, 'success');
 }
 
 function closeAddModal() {
@@ -425,6 +432,8 @@ DOM.modalSearch.addEventListener('input', () => {
   const q = DOM.modalSearch.value.trim().toLowerCase();
   if (!q) { renderModalList(allAvailableArticles); return; }
   const filtered = allAvailableArticles.filter(a =>
+    (a.Subtitle || '').toLowerCase().includes(q) ||
+    (a.Title_Org || '').toLowerCase().includes(q) ||
     (a.title || '').toLowerCase().includes(q) ||
     (a.category || '').toLowerCase().includes(q)
   );
@@ -813,8 +822,8 @@ function buildPreviewHtml() {
     html += `<h2 class="pv-articles-title">📰 오늘의 큐레이션 기사 (${arts.length})</h2>`;
     arts.forEach((art, idx) => {
       const edits = state.activeEdits[art.uuid] || {};
-      const title = art.Title_Org || art.title || '(제목 없음)';
-      const subtitle = edits.Subtitle || art.Subtitle || '';
+      const title = edits.Subtitle || art.Subtitle || '(제목 없음)'; // Use Subtitle as the main display title
+      const subtitle = art.Title_Org || art.title || ''; // Use Title_Org/title as subtitle
       const content = edits.Core_Content || art.Core_Content || '';
       const thumb = edits.Item_Thumb || art.Item_Thumb || art.thumb || '';
 
