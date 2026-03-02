@@ -1,0 +1,13 @@
+# GAS 파일 — Netlify 배포 불필요 (GAS 에디터에서 직접 관리)
+Code.gs
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+*.swp
+
+# Node (netlify dev 사용 시)
+node_modules/

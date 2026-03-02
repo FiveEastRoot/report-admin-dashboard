@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>리포트 관리자 대시보드 — Daily Report Admin</title>
+  <meta name="description" content="일간 리포트 검토·편집·이미지 처리 및 최종 발행 관리 대시보드" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- ══════════════════════════════════════════════════════
+     LOADING OVERLAY
+══════════════════════════════════════════════════════ -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-card">
+      <div class="spinner-lg"></div>
+      <span class="loading-label" id="loadingLabel">처리 중...</span>
+      <p id="loadingDesc">잠시만 기다려주세요.</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+     TOAST CONTAINER
+══════════════════════════════════════════════════════ -->
+  <div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- ══════════════════════════════════════════════════════
+     MODAL — 기사 추가
+══════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="addArticleModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalTitle">📰 기사 추가</h3>
+        <button class="modal-close" id="modalCloseBtn" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-search">
+        <input class="modal-search-input" id="modalSearchInput" type="text" placeholder="제목, 카테고리로 검색..."
+          autocomplete="off" />
+      </div>
+      <div class="modal-list" id="modalArticleList">
+        <div class="empty-state">
+          <div class="empty-icon">🔄</div>
+          <p>기사 목록을 불러오는 중...</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <span class="modal-count" id="modalCount">– 개 기사</span>
+        <button class="btn btn-save" id="modalCancelBtn">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+     APP SHELL
+══════════════════════════════════════════════════════ -->
+  <div id="app">
+
+    <!-- ── Header ───────────────────────────────────────── -->
+    <header class="header">
+      <div class="header-brand">
+        <div class="logo-icon">📊</div>
+        <h1>Daily Report Admin</h1>
+      </div>
+      <div class="header-controls">
+        <div class="date-picker-wrap">
+          <label for="reportDate">날짜</label>
+          <input type="date" id="reportDate" />
+        </div>
+        <button id="loadReportBtn">리포트 로드</button>
+      </div>
+    </header>
+
+    <!-- ── Panel A — Article Curation ───────────────────── -->
+    <aside class="panel-a" id="panelA">
+      <div class="panel-header">
+        <h2>
+          🗞 큐레이션
+          <span class="count-badge" id="articleCount">0개</span>
+        </h2>
+      </div>
+
+      <div id="articleList" role="list" aria-label="큐레이션된 기사 목록">
+        <div class="empty-state">
+          <div class="empty-icon">📂</div>
+          <p>리포트를 로드하면<br />기사 목록이 표시됩니다.</p>
+        </div>
+      </div>
+
+      <div class="panel-footer">
+        <button id="addArticleBtn">
+          <span>＋</span>
+          기사 추가
+        </button>
+      </div>
+    </aside>
+
+    <!-- ── Panel B — Editor ──────────────────────────────── -->
+    <main class="panel-b" id="panelB">
+      <div class="editor-container">
+
+        <!-- 1. 일간 리포트 텍스트 필드 -->
+        <section class="editor-section" id="reportTextSection">
+          <div class="section-header">
+            <div class="section-icon violet">✏️</div>
+            <span class="section-title">리포트 텍스트 필드</span>
+            <span class="section-subtitle">Daily Report Body</span>
+          </div>
+          <div class="fields-grid">
+
+            <div class="field-wrap full">
+              <label class="field-label" for="f_Headline">Headline <span class="required">*</span></label>
+              <input class="form-input" id="f_Headline" name="Headline" type="text" placeholder="오늘의 메인 헤드라인을 입력하세요" />
+            </div>
+
+            <div class="field-wrap full">
+              <label class="field-label" for="f_Head_Desc">Head_Desc</label>
+              <textarea class="form-textarea short" id="f_Head_Desc" name="Head_Desc"
+                placeholder="헤드라인 부연 설명..."></textarea>
+            </div>
+
+            <div class="field-wrap">
+              <label class="field-label" for="f_Why_Imp">Why_Imp</label>
+              <textarea class="form-textarea medium" id="f_Why_Imp" name="Why_Imp" placeholder="왜 중요한가?"></textarea>
+            </div>
+
+            <div class="field-wrap">
+              <label class="field-label" for="f_Point_Now">Point_Now</label>
+              <textarea class="form-textarea medium" id="f_Point_Now" name="Point_Now"
+                placeholder="지금 주목해야 할 포인트..."></textarea>
+            </div>
+
+            <div class="field-wrap">
+              <label class="field-label" for="f_App_Review">App_Review</label>
+              <textarea class="form-textarea medium" id="f_App_Review" name="App_Review"
+                placeholder="(AI가 채웁니다)"></textarea>
+            </div>
+
+            <div class="field-wrap">
+              <label class="field-label" for="f_App_Prep">App_Prep</label>
+              <textarea class="form-textarea medium" id="f_App_Prep" name="App_Prep"
+                placeholder="(AI가 채웁니다)"></textarea>
+            </div>
+
+            <div class="field-wrap full">
+              <label class="field-label" for="f_App_Point">App_Point</label>
+              <textarea class="form-textarea medium" id="f_App_Point" name="App_Point"
+                placeholder="(AI가 채웁니다)"></textarea>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- 2. 이미지 필드 -->
+        <section class="editor-section" id="reportImageSection">
+          <div class="section-header">
+            <div class="section-icon blue">🖼</div>
+            <span class="section-title">이미지 필드</span>
+            <span class="section-subtitle">R2 업로드 연동</span>
+          </div>
+          <div class="fields-grid">
+
+            <div class="field-wrap">
+              <label class="field-label">Img_Cover <span class="required">*</span></label>
+              <div class="image-upload-wrap" data-field="Img_Cover">
+                <div class="image-drop-zone" id="dz_Img_Cover" tabindex="0" role="button"
+                  aria-label="Img_Cover 이미지 업로드">
+                  <span class="upload-icon">☁️</span>
+                  <span class="upload-text"><strong>클릭</strong> 또는 드래그하여 업로드</span>
+                </div>
+                <div class="uploading-indicator" id="up_Img_Cover">
+                  <div class="spinner-sm"></div>
+                  <span>업로드 중...</span>
+                </div>
+                <img class="image-preview" id="prev_Img_Cover" alt="Img_Cover 미리보기" />
+                <input type="hidden" id="f_Img_Cover" name="Img_Cover" />
+                <input class="image-url-input" id="url_Img_Cover" type="text" placeholder="이미지 URL 직접 입력 또는 자동 삽입" />
+                <input type="file" class="sr-only" id="file_Img_Cover" accept="image/*" data-target="Img_Cover" />
+              </div>
+            </div>
+
+            <div class="field-wrap">
+              <label class="field-label">Img_Sec1</label>
+              <div class="image-upload-wrap" data-field="Img_Sec1">
+                <div class="image-drop-zone" id="dz_Img_Sec1" tabindex="0" role="button" aria-label="Img_Sec1 이미지 업로드">
+                  <span class="upload-icon">☁️</span>
+                  <span class="upload-text"><strong>클릭</strong> 또는 드래그하여 업로드</span>
+                </div>
+                <div class="uploading-indicator" id="up_Img_Sec1">
+                  <div class="spinner-sm"></div>
+                  <span>업로드 중...</span>
+                </div>
+                <img class="image-preview" id="prev_Img_Sec1" alt="Img_Sec1 미리보기" />
+                <input type="hidden" id="f_Img_Sec1" name="Img_Sec1" />
+                <input class="image-url-input" id="url_Img_Sec1" type="text" placeholder="이미지 URL 직접 입력 또는 자동 삽입" />
+                <input type="file" class="sr-only" id="file_Img_Sec1" accept="image/*" data-target="Img_Sec1" />
+              </div>
+            </div>
+
+            <div class="field-wrap">
+              <label class="field-label">Img_Sec2</label>
+              <div class="image-upload-wrap" data-field="Img_Sec2">
+                <div class="image-drop-zone" id="dz_Img_Sec2" tabindex="0" role="button" aria-label="Img_Sec2 이미지 업로드">
+                  <span class="upload-icon">☁️</span>
+                  <span class="upload-text"><strong>클릭</strong> 또는 드래그하여 업로드</span>
+                </div>
+                <div class="uploading-indicator" id="up_Img_Sec2">
+                  <div class="spinner-sm"></div>
+                  <span>업로드 중...</span>
+                </div>
+                <img class="image-preview" id="prev_Img_Sec2" alt="Img_Sec2 미리보기" />
+                <input type="hidden" id="f_Img_Sec2" name="Img_Sec2" />
+                <input class="image-url-input" id="url_Img_Sec2" type="text" placeholder="이미지 URL 직접 입력 또는 자동 삽입" />
+                <input type="file" class="sr-only" id="file_Img_Sec2" accept="image/*" data-target="Img_Sec2" />
+              </div>
+            </div>
+
+            <div class="field-wrap">
+              <label class="field-label">Img_Sec3</label>
+              <div class="image-upload-wrap" data-field="Img_Sec3">
+                <div class="image-drop-zone" id="dz_Img_Sec3" tabindex="0" role="button" aria-label="Img_Sec3 이미지 업로드">
+                  <span class="upload-icon">☁️</span>
+                  <span class="upload-text"><strong>클릭</strong> 또는 드래그하여 업로드</span>
+                </div>
+                <div class="uploading-indicator" id="up_Img_Sec3">
+                  <div class="spinner-sm"></div>
+                  <span>업로드 중...</span>
+                </div>
+                <img class="image-preview" id="prev_Img_Sec3" alt="Img_Sec3 미리보기" />
+                <input type="hidden" id="f_Img_Sec3" name="Img_Sec3" />
+                <input class="image-url-input" id="url_Img_Sec3" type="text" placeholder="이미지 URL 직접 입력 또는 자동 삽입" />
+                <input type="file" class="sr-only" id="file_Img_Sec3" accept="image/*" data-target="Img_Sec3" />
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- 3. 개별 기사 편집 (클릭 시 열림) -->
+        <section class="editor-section hidden" id="activeArticleSection">
+          <div class="section-header">
+            <div class="section-icon violet">📌</div>
+            <span class="section-title" id="activeArticleTitleLabel">기사 편집</span>
+            <span class="section-subtitle" id="activeArticleUuidLabel"></span>
+          </div>
+          <div class="fields-grid">
+
+            <div class="field-wrap full">
+              <label class="field-label" for="f_Subtitle">Subtitle</label>
+              <input class="form-input" id="f_Subtitle" type="text" placeholder="기사 소제목..." />
+            </div>
+
+            <div class="field-wrap full">
+              <label class="field-label" for="f_Core_Content">Core_Content</label>
+              <textarea class="form-textarea tall" id="f_Core_Content" placeholder="핵심 내용 요약..."></textarea>
+            </div>
+
+            <div class="field-wrap full">
+              <label class="field-label" for="f_Key_Point">Key_Point</label>
+              <textarea class="form-textarea medium" id="f_Key_Point" placeholder="핵심 포인트..."></textarea>
+            </div>
+
+            <div class="field-wrap">
+              <label class="field-label">Item_Thumb</label>
+              <div class="image-upload-wrap" data-field="Item_Thumb">
+                <div class="image-drop-zone" id="dz_Item_Thumb" tabindex="0" role="button"
+                  aria-label="Item_Thumb 이미지 업로드">
+                  <span class="upload-icon">☁️</span>
+                  <span class="upload-text"><strong>클릭</strong> 또는 드래그하여 업로드</span>
+                </div>
+                <div class="uploading-indicator" id="up_Item_Thumb">
+                  <div class="spinner-sm"></div>
+                  <span>업로드 중...</span>
+                </div>
+                <img class="image-preview" id="prev_Item_Thumb" alt="Item_Thumb 미리보기" />
+                <input type="hidden" id="f_Item_Thumb" name="Item_Thumb" />
+                <input class="image-url-input" id="url_Item_Thumb" type="text" placeholder="이미지 URL 직접 입력 또는 자동 삽입" />
+                <input type="file" class="sr-only" id="file_Item_Thumb" accept="image/*" data-target="Item_Thumb" />
+              </div>
+            </div>
+
+            <div class="field-wrap" style="align-self:end; padding-bottom:6px;">
+              <button class="btn btn-save" id="saveActiveBtn" style="width:100%;">
+                <span>💾</span> 기사 변경사항 저장
+              </button>
+            </div>
+
+          </div>
+        </section>
+
+      </div><!-- /editor-container -->
+    </main><!-- /panel-b -->
+
+  </div><!-- /app -->
+
+  <!-- ══════════════════════════════════════════════════════
+     PREVIEW OVERLAY
+══════════════════════════════════════════════════════ -->
+  <div class="preview-overlay" id="previewOverlay">
+    <div class="preview-toolbar">
+      <div class="preview-toolbar-title">👁 리포트 미리 보기</div>
+      <button class="preview-close-btn" id="previewCloseBtn">✕ 닫기</button>
+    </div>
+    <div class="preview-content" id="previewContent">
+      <!-- Dynamically populated -->
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+     PANEL C — Floating Action Bar
+══════════════════════════════════════════════════════ -->
+  <div class="action-bar" id="actionBar" role="complementary" aria-label="리포트 액션 바">
+    <div class="status-badge draft" id="statusBadge">
+      <span class="status-dot"></span>
+      <span id="statusText">Draft</span>
+    </div>
+    <div class="bar-inner">
+      <button class="btn btn-save" id="btnPreview" title="미리 보기" disabled>
+        <span>👁</span>
+        미리 보기
+      </button>
+      <div class="btn-divider"></div>
+      <button class="btn btn-save" id="btnSave" title="중간 저장" disabled>
+        <span>💾</span>
+        중간 저장
+      </button>
+      <div class="btn-divider"></div>
+      <button class="btn btn-generate" id="btnGenerate" title="AI 본문 생성" disabled>
+        <div class="btn-spinner" id="generateSpinner"></div>
+        <span id="generateBtnText">✨ AI 본문 생성</span>
+      </button>
+      <div class="btn-divider"></div>
+      <button class="btn btn-publish" id="btnPublish" title="최종 발행" disabled>
+        <span>🚀</span>
+        최종 발행
+      </button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
