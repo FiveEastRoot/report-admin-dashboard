@@ -671,7 +671,7 @@ DOM.btnGenerate.addEventListener('click', async () => {
 
   try {
     // Trigger generation
-    await gasApi('RUN_DAILY_GENERATE', {});
+    await gasApi('RUN_DAILY_GENERATE', { targetDate: state.reportDate });
     showToast('AI 본문 생성 시작됨. 완료까지 기다립니다…', 'info', 8000);
 
     // Poll until Status becomes Ready
