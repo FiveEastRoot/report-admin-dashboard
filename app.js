@@ -610,15 +610,11 @@ DOM.btnSave.addEventListener('click', async () => {
   try {
     flushActiveEditsToState();
 
-    // 1. Save included UUID order
-    await gasApi('UPDATE_INCLUDED_ITEMS', {
-      reportType: 'DAILY',
-      targetDate: state.reportDate,
-      updatedUuids: state.articles.map(a => a.uuid),
-    });
-
-    // 2. Save report text/image fields
+    // 1 & 2. Save report text/image fields AND Included_Items in one atomic call
     const updates = collectReportUpdates();
+    const validUuids = state.articles.map(a => a.uuid).filter(Boolean);
+    updates.Included_Items = JSON.stringify(validUuids);
+
     await gasApi('UPDATE_REPORT_DATA', {
       reportType: 'DAILY',
       targetDate: state.reportDate,
