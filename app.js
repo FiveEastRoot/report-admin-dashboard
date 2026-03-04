@@ -11,10 +11,8 @@
    - R2_UPLOAD_URL: Cloudflare Worker 업로드 엔드포인트 (추후 교체)
 ─────────────────────────────────────────────────────────────── */
 const CONFIG = {
-  // Netlify Function 프록시 경로 — CORS 우회 (서버-서버 통신)
-  // 로컬 테스트 시: http://localhost:8888/api/gas (netlify dev 사용)
-  // Netlify 배포 후: /api/gas (자동으로 /.netlify/functions/gas-proxy 호출)
-  GAS_URL: '/api/gas',
+  // 직접 브라우저에서 GAS 접근 (text/plain 을 이용해 Preflight 우회, 502 Timeout 방지)
+  GAS_URL: 'https://script.google.com/macros/s/AKfycbzq6PI_nyOrna4HBYekghzkjwg8fUbm35nuT8sOEiLtgeqJ2rfOcVensvHXBQm6tBkv/exec',
   R2_UPLOAD_URL: 'https://dashboard-image-upload.geun9265.workers.dev/',
   POLL_INTERVAL_MS: 5000,        // AI 생성 폴링 주기 (5초)
   POLL_TIMEOUT_MS: 150000,      // 최대 대기 시간 (2.5분)
