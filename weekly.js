@@ -69,7 +69,7 @@ const DOM = {
   loadingDesc: $('loadingDesc'),
 
   // Report text fields (from‐name → element)
-  textFields: ['Headline', 'Head_Desc', 'Why_Imp', 'Point_Now', 'App_Review', 'App_Prep', 'App_Point'],
+  textFields: ['Weekly_Headline', 'Theme_1', 'Theme_2', 'Theme_3', 'Weekly_Summary'],
   imgFields: ['Img_Cover', 'Img_Sec1', 'Img_Sec2', 'Img_Sec3'],
 };
 
@@ -533,7 +533,7 @@ async function loadReport(date) {
   showLoading('리포트 로드 중...', `${date} 데이터를 불러오고 있습니다.`);
 
   try {
-    const data = await gasApi('GET_REPORT_DATA', { reportType: 'DAILY', targetDate: date });
+    const data = await gasApi('GET_REPORT_DATA', { reportType: 'WEEKLY', targetDate: date });
 
     state.reportDate = date;
     state.reportData = data.reportData || {};
@@ -614,7 +614,7 @@ DOM.btnSave.addEventListener('click', async () => {
     updates.Included_Items = JSON.stringify(validUuids);
 
     await gasApi('UPDATE_REPORT_DATA', {
-      reportType: 'DAILY',
+      reportType: 'WEEKLY',
       targetDate: state.reportDate,
       updates,
     });
@@ -669,8 +669,8 @@ DOM.btnGenerate.addEventListener('click', async () => {
 
   try {
     // Trigger generation
-    await gasApi('RUN_DAILY_GENERATE', { targetDate: state.reportDate });
-    showToast('AI 본문 생성 시작됨. 완료까지 기다립니다…', 'info', 8000);
+    await gasApi('RUN_WEEKLY_GENERATE', { targetDate: state.reportDate });
+    showToast('AI 주간 요약 생성 시작됨. 완료까지 기다립니다…', 'info', 8000);
 
     // Poll until Status becomes Ready
     await pollUntilReady();
@@ -695,7 +695,7 @@ async function pollUntilReady() {
       }
       try {
         const data = await gasApi('GET_REPORT_DATA', {
-          reportType: 'DAILY',
+          reportType: 'WEEKLY',
           targetDate: state.reportDate,
         });
         const newStatus = data?.reportData?.Status || '';
@@ -733,7 +733,7 @@ DOM.btnPublish.addEventListener('click', async () => {
   showLoading('발행 중...', 'DB 상태를 Published로 변경하고 있습니다.');
   try {
     await gasApi('PUBLISH_REPORT', {
-      reportType: 'DAILY',
+      reportType: 'WEEKLY',
       targetDate: state.reportDate,
     });
     applyStatus('Published');
@@ -777,8 +777,8 @@ function buildPreviewHtml() {
 
   // Header
   html += `<div class="pv-header">`;
-  html += `<div class="pv-date">DAILY REPORT — ${escHtml(state.reportDate)}</div>`;
-  html += `<h1 class="pv-headline">${escHtml(r.Headline || '(헤드라인 없음)')}</h1>`;
+  html += `<div class="pv-date">WEEKLY REPORT — ${escHtml(state.reportDate)}</div>`;
+  html += `<h1 class="pv-headline">${escHtml(r.Weekly_Headline || '(헤드라인 없음)')}</h1>`;
   if (r.Head_Desc) html += `<p class="pv-head-desc">${escHtml(r.Head_Desc)}</p>`;
   html += `</div>`;
 
@@ -866,7 +866,7 @@ $('previewOverlay').addEventListener('click', (e) => {
 function init() {
   // Get date from URL or default to today (KST: UTC+9)
   const urlParams = new URLSearchParams(window.location.search);
-  const queryDate = urlParams.get('date');
+  const queryDate = urlParams.get('week');
 
   const today = new Date(Date.now() + 9 * 3600 * 1000);
   const targetDateStr = queryDate || fmtDate(today);
@@ -883,7 +883,7 @@ function init() {
   });
 
   // Auto-load on page open
-  console.log('%c[Daily Report Admin] 초기화 완료. 리포트를 로드합니다…', 'color:#7C6AF7;font-weight:bold');
+  console.log('%c[Weekly Report Admin] 초기화 완료. 리포트를 로드합니다…', 'color:#7C6AF7;font-weight:bold');
   loadReport(targetDateStr);
 }
 

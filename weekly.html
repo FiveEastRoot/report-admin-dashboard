@@ -101,53 +101,40 @@
     <main class="panel-b" id="panelB">
       <div class="editor-container">
 
-        <!-- 1. 일간 리포트 텍스트 필드 -->
+        <!-- 1. 주간 리포트 텍스트 필드 -->
         <section class="editor-section" id="reportTextSection">
           <div class="section-header">
             <div class="section-icon violet">✏️</div>
             <span class="section-title">리포트 텍스트 필드</span>
-            <span class="section-subtitle">Daily Report Body</span>
+            <span class="section-subtitle">Weekly Report Body</span>
           </div>
           <div class="fields-grid">
 
             <div class="field-wrap full">
-              <label class="field-label" for="f_Headline">Headline <span class="required">*</span></label>
-              <input class="form-input" id="f_Headline" name="Headline" type="text" placeholder="오늘의 메인 헤드라인을 입력하세요" />
+              <label class="field-label" for="f_Weekly_Headline">Weekly_Headline <span class="required">*</span></label>
+              <input class="form-input" id="f_Weekly_Headline" name="Weekly_Headline" type="text"
+                placeholder="이번 주 메인 헤드라인을 입력하세요" />
             </div>
 
             <div class="field-wrap full">
-              <label class="field-label" for="f_Head_Desc">Head_Desc</label>
-              <textarea class="form-textarea short" id="f_Head_Desc" name="Head_Desc"
-                placeholder="헤드라인 부연 설명..."></textarea>
-            </div>
-
-            <div class="field-wrap">
-              <label class="field-label" for="f_Why_Imp">Why_Imp</label>
-              <textarea class="form-textarea medium" id="f_Why_Imp" name="Why_Imp" placeholder="왜 중요한가?"></textarea>
-            </div>
-
-            <div class="field-wrap">
-              <label class="field-label" for="f_Point_Now">Point_Now</label>
-              <textarea class="form-textarea medium" id="f_Point_Now" name="Point_Now"
-                placeholder="지금 주목해야 할 포인트..."></textarea>
-            </div>
-
-            <div class="field-wrap">
-              <label class="field-label" for="f_App_Review">App_Review</label>
-              <textarea class="form-textarea medium" id="f_App_Review" name="App_Review"
-                placeholder="(AI가 채웁니다)"></textarea>
-            </div>
-
-            <div class="field-wrap">
-              <label class="field-label" for="f_App_Prep">App_Prep</label>
-              <textarea class="form-textarea medium" id="f_App_Prep" name="App_Prep"
-                placeholder="(AI가 채웁니다)"></textarea>
+              <label class="field-label" for="f_Theme_1">Theme_1</label>
+              <input class="form-input" id="f_Theme_1" name="Theme_1" type="text" placeholder="첫 번째 핵심 테마..." />
             </div>
 
             <div class="field-wrap full">
-              <label class="field-label" for="f_App_Point">App_Point</label>
-              <textarea class="form-textarea medium" id="f_App_Point" name="App_Point"
-                placeholder="(AI가 채웁니다)"></textarea>
+              <label class="field-label" for="f_Theme_2">Theme_2</label>
+              <input class="form-input" id="f_Theme_2" name="Theme_2" type="text" placeholder="두 번째 핵심 테마..." />
+            </div>
+
+            <div class="field-wrap full">
+              <label class="field-label" for="f_Theme_3">Theme_3</label>
+              <input class="form-input" id="f_Theme_3" name="Theme_3" type="text" placeholder="세 번째 핵심 테마..." />
+            </div>
+
+            <div class="field-wrap full">
+              <label class="field-label" for="f_Weekly_Summary">Weekly_Summary</label>
+              <textarea class="form-textarea tall" id="f_Weekly_Summary" name="Weekly_Summary"
+                placeholder="주간 동향 요약본 (AI가 채웁니다)"></textarea>
             </div>
 
           </div>
@@ -339,7 +326,7 @@
     </div>
   </div>
 
-  <script src="daily.js"></script>
+  <script src="weekly.js"></script>
 </body>
 
 </html>
