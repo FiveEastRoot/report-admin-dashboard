@@ -545,9 +545,9 @@ body {
   font-size: 13px;
   padding: 9px 12px;
   transition: all var(--transition);
-  outline: none;
   resize: none;
   width: 100%;
+  overflow-y: auto;
 }
 
 .form-input:focus,
@@ -701,7 +701,6 @@ body {
   text-transform: uppercase;
   border: 1.5px solid transparent;
   transition: all var(--transition);
-  align-self: flex-end;
 }
 
 .status-badge.draft {

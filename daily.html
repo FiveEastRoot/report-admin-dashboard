@@ -60,13 +60,18 @@
 
     <!-- ── Header ───────────────────────────────────────── -->
     <header class="header">
-      <div class="header-brand">
-        <div class="logo-icon" style="background:none;"><img
-            src="https://pub-03167621cdbf4cc3bd490e069b232ca3.r2.dev/reports/KBRAIN%20CI.png" alt="K-BRAIN"
-            style="height:24px;"></div>
+      <a href="index.html" class="header-brand" style="text-decoration: none; color: inherit;">
+        <div class="logo-icon" style="background:none; margin-right: 12px;">
+          <img src="https://pub-03167621cdbf4cc3bd490e069b232ca3.r2.dev/reports/KBRAIN%20CI.png" alt="K-BRAIN"
+            style="height:36px;">
+        </div>
         <h1>Daily Report Editor</h1>
-      </div>
+      </a>
       <div class="header-controls">
+        <div class="status-badge draft" id="statusBadge">
+          <span class="status-dot"></span>
+          <span id="statusText">Draft</span>
+        </div>
         <div class="date-picker-wrap">
           <label for="reportDate">날짜</label>
           <input type="date" id="reportDate" />
@@ -314,10 +319,6 @@
      PANEL C — Floating Action Bar
 ══════════════════════════════════════════════════════ -->
   <div class="action-bar" id="actionBar" role="complementary" aria-label="리포트 액션 바">
-    <div class="status-badge draft" id="statusBadge">
-      <span class="status-dot"></span>
-      <span id="statusText">Draft</span>
-    </div>
     <div class="bar-inner">
       <button class="btn btn-save" id="btnPreview" title="미리 보기" disabled>
         <span></span>
