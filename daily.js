@@ -55,6 +55,7 @@ const DOM = {
   generateSpinner: $('generateSpinner'),
   generateBtnText: $('generateBtnText'),
   btnPublish: $('btnPublish'),
+  btnUnpublish: $('btnUnpublish'),
   btnPreview: $('btnPreview'),
 
   // Active article section
@@ -132,8 +133,7 @@ function showToast(message, type = 'info', duration = 3500) {
   const container = $('toastContainer');
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
-  const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
-  toast.innerHTML = `<span>${icons[type] || '💬'}</span><span>${message}</span>`;
+  toast.innerHTML = `<span></span><span>${message}</span>`;
   container.appendChild(toast);
   setTimeout(() => {
     toast.classList.add('out');
@@ -159,9 +159,9 @@ function applyStatus(status) {
   badge.className = 'status-badge';
 
   let label = status;
-  if (status === 'Draft') { badge.classList.add('draft'); label = '✏️ Draft'; }
-  if (status === 'Ready') { badge.classList.add('ready'); label = '⚡ Ready'; }
-  if (status === 'Published') { badge.classList.add('published'); label = '✅ Published'; }
+  if (status === 'Draft') { badge.classList.add('draft'); label = 'Draft'; }
+  if (status === 'Ready') { badge.classList.add('ready'); label = 'Ready'; }
+  if (status === 'Published') { badge.classList.add('published'); label = 'Published'; }
 
   DOM.statusText.textContent = label;
 
@@ -174,10 +174,15 @@ function applyStatus(status) {
     DOM.btnSave.disabled = true;
     DOM.btnGenerate.disabled = true;
     DOM.btnPublish.disabled = true;
+    DOM.btnPublish.style.display = 'none';
+    if (DOM.btnUnpublish) DOM.btnUnpublish.style.display = 'flex';
     // Disable all form inputs
     document.querySelectorAll('.form-input, .form-textarea').forEach(el => (el.disabled = true));
   } else {
     document.body.classList.remove('is-published');
+    DOM.btnPublish.style.display = 'flex';
+    if (DOM.btnUnpublish) DOM.btnUnpublish.style.display = 'none';
+    document.querySelectorAll('.form-input, .form-textarea').forEach(el => (el.disabled = false));
   }
 }
 
@@ -190,7 +195,7 @@ function renderArticleList() {
   if (!articles.length) {
     list.innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon">📭</div>
+        <div class="empty-icon"></div>
         <p>큐레이션된 기사가 없습니다.<br/>[+ 기사 추가]로 추가해 주세요.</p>
       </div>`;
     DOM.articleCount.textContent = '0개';
@@ -210,8 +215,8 @@ function renderArticleList() {
     card.setAttribute('aria-label', art.Title_Org || art.title || '기사');
 
     const thumbHtml = art.Item_Thumb || art.thumb
-      ? `<img class="article-thumb" src="${art.Item_Thumb || art.thumb}" alt="썸네일" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><div class="article-thumb-placeholder" style="display:none">📄</div>`
-      : `<div class="article-thumb-placeholder">📄</div>`;
+      ? `<img class="article-thumb" src="${art.Item_Thumb || art.thumb}" alt="썸네일" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><div class="article-thumb-placeholder" style="display:none"></div>`
+      : `<div class="article-thumb-placeholder"></div>`;
 
     const title = art.Subtitle || '(제목 없음)';
     const subtitle = art.Title_Org || art.title || '';
@@ -227,7 +232,7 @@ function renderArticleList() {
         ${subtitle ? `<div class="article-subtitle" style="font-size:11px; color:var(--text-muted); margin-bottom:4px;">${escHtml(subtitle)}</div>` : ''}
         <div class="article-meta">
           ${category ? `<span class="tag tag-category">${escHtml(String(category))}</span>` : ''}
-          ${score !== '' ? `<span class="tag tag-score">⭐ ${score}</span>` : ''}
+          ${score !== '' ? `<span class="tag tag-score">${score}</span>` : ''}
         </div>
       </div>
       <button class="remove-btn" data-uuid="${art.uuid}" title="제외" aria-label="기사 제외">✕</button>
@@ -354,7 +359,7 @@ let allAvailableArticles = [];
 async function openAddModal() {
   DOM.addModal.classList.add('open');
   DOM.modalSearch.value = '';
-  DOM.modalList.innerHTML = `<div class="empty-state"><div class="empty-icon">🔄</div><p>기사 목록을 불러오는 중...</p></div>`;
+  DOM.modalList.innerHTML = `<div class="empty-state"><div class="empty-icon"></div><p>기사 목록을 불러오는 중...</p></div>`;
 
   try {
     const date = state.reportDate;
@@ -362,7 +367,7 @@ async function openAddModal() {
     allAvailableArticles = Array.isArray(data) ? data : [];
     renderModalList(allAvailableArticles);
   } catch (err) {
-    DOM.modalList.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><p>불러오기 실패: ${escHtml(err.message)}</p></div>`;
+    DOM.modalList.innerHTML = `<div class="empty-state"><div class="empty-icon"></div><p>불러오기 실패: ${escHtml(err.message)}</p></div>`;
     showToast('기사 목록 로드 실패: ' + err.message, 'error');
   }
 }
@@ -372,7 +377,7 @@ function renderModalList(articles) {
   DOM.modalCount.textContent = `${articles.length}개 기사`;
 
   if (!articles.length) {
-    DOM.modalList.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><p>검색 결과가 없습니다.</p></div>`;
+    DOM.modalList.innerHTML = `<div class="empty-state"><div class="empty-icon"></div><p>검색 결과가 없습니다.</p></div>`;
     return;
   }
 
@@ -386,7 +391,7 @@ function renderModalList(articles) {
     const title = art.Subtitle || '(제목 없음)';
     const subtitle = art.Title_Org || art.title || '';
     const catHtml = art.category ? `<span class="tag tag-category">${escHtml(art.category)}</span>` : '';
-    const scoreHtml = art.score ? `<span class="tag tag-score">★ ${art.score}</span>` : '';
+    const scoreHtml = art.score ? `<span class="tag tag-score">${art.score}</span>` : '';
 
     item.innerHTML = `
       <div class="modal-article-info">
@@ -625,7 +630,7 @@ DOM.btnSave.addEventListener('click', async () => {
       gasApi('UPDATE_ACTIVE_DATA', { uuid, updates: edits }).catch(() => { })
     ));
 
-    showToast('저장 완료 ✓', 'success');
+    showToast('저장 완료', 'success');
   } catch (err) {
     showToast('저장 실패: ' + err.message, 'error');
   } finally {
@@ -679,7 +684,7 @@ DOM.btnGenerate.addEventListener('click', async () => {
     DOM.btnGenerate.disabled = false;
   } finally {
     DOM.generateSpinner.classList.remove('visible');
-    DOM.generateBtnText.textContent = '✨ AI 본문 생성';
+    DOM.generateBtnText.textContent = 'AI 본문 생성';
   }
 });
 
@@ -737,13 +742,38 @@ DOM.btnPublish.addEventListener('click', async () => {
       targetDate: state.reportDate,
     });
     applyStatus('Published');
-    showToast('🚀 리포트가 발행되었습니다!', 'success', 6000);
+    showToast('리포트가 발행되었습니다.', 'success', 6000);
   } catch (err) {
     showToast('발행 실패: ' + err.message, 'error');
   } finally {
     hideLoading();
   }
 });
+
+/* Ready로 전환 (Unpublish) */
+if (DOM.btnUnpublish) {
+  DOM.btnUnpublish.addEventListener('click', async () => {
+    if (state.status !== 'Published') return;
+
+    const confirmed = window.confirm('Ready 상태로 되돌리시겠습니까?\\n다시 배포 전까지 수정이 가능해집니다.');
+    if (!confirmed) return;
+
+    showLoading('전환 중...', 'DB 상태를 Ready로 변경하고 있습니다.');
+    try {
+      await gasApi('UPDATE_REPORT_DATA', {
+        reportType: 'DAILY',
+        targetDate: state.reportDate,
+        updates: { Status: 'Ready' }
+      });
+      applyStatus('Ready');
+      showToast('상태가 Ready로 변경되었습니다.', 'success', 4000);
+    } catch (err) {
+      showToast('상태 전환 실패: ' + err.message, 'error');
+    } finally {
+      hideLoading();
+    }
+  });
+}
 
 /* ─── UTILITIES ───────────────────────────────────────────────── */
 

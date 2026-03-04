@@ -33,7 +33,7 @@
   <div class="modal-overlay" id="addArticleModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal">
       <div class="modal-header">
-        <h3 id="modalTitle">📰 기사 추가</h3>
+        <h3 id="modalTitle">기사 추가</h3>
         <button class="modal-close" id="modalCloseBtn" aria-label="닫기">✕</button>
       </div>
       <div class="modal-search">
@@ -42,7 +42,7 @@
       </div>
       <div class="modal-list" id="modalArticleList">
         <div class="empty-state">
-          <div class="empty-icon">🔄</div>
+          <div class="empty-icon"></div>
           <p>기사 목록을 불러오는 중...</p>
         </div>
       </div>
@@ -61,8 +61,10 @@
     <!-- ── Header ───────────────────────────────────────── -->
     <header class="header">
       <div class="header-brand">
-        <div class="logo-icon">📊</div>
-        <h1>Daily Report Admin</h1>
+        <div class="logo-icon" style="background:none;"><img
+            src="https://pub-03167621cdbf4cc3bd490e069b232ca3.r2.dev/reports/KBRAIN%20CI.png" alt="K-BRAIN"
+            style="height:24px;"></div>
+        <h1>Weekly Report Editor</h1>
       </div>
       <div class="header-controls">
         <div class="date-picker-wrap">
@@ -77,21 +79,21 @@
     <aside class="panel-a" id="panelA">
       <div class="panel-header">
         <h2>
-          🗞 큐레이션
+          큐레이션
           <span class="count-badge" id="articleCount">0개</span>
         </h2>
       </div>
 
       <div id="articleList" role="list" aria-label="큐레이션된 기사 목록">
         <div class="empty-state">
-          <div class="empty-icon">📂</div>
+          <div class="empty-icon"></div>
           <p>리포트를 로드하면<br />기사 목록이 표시됩니다.</p>
         </div>
       </div>
 
       <div class="panel-footer">
         <button id="addArticleBtn">
-          <span>＋</span>
+          <span>+</span>
           기사 추가
         </button>
       </div>
@@ -104,7 +106,7 @@
         <!-- 1. 주간 리포트 텍스트 필드 -->
         <section class="editor-section" id="reportTextSection">
           <div class="section-header">
-            <div class="section-icon violet">✏️</div>
+            <div class="section-icon violet"></div>
             <span class="section-title">리포트 텍스트 필드</span>
             <span class="section-subtitle">Weekly Report Body</span>
           </div>
@@ -169,7 +171,7 @@
         <!-- 2. 이미지 필드 -->
         <section class="editor-section" id="reportImageSection">
           <div class="section-header">
-            <div class="section-icon blue">🖼</div>
+            <div class="section-icon blue"></div>
             <span class="section-title">이미지 필드</span>
             <span class="section-subtitle">R2 업로드 연동</span>
           </div>
@@ -180,7 +182,7 @@
               <div class="image-upload-wrap" data-field="Img_Cover">
                 <div class="image-drop-zone" id="dz_Img_Cover" tabindex="0" role="button"
                   aria-label="Img_Cover 이미지 업로드">
-                  <span class="upload-icon">☁️</span>
+                  <span class="upload-icon"></span>
                   <span class="upload-text"><strong>클릭</strong> 또는 드래그하여 업로드</span>
                 </div>
                 <div class="uploading-indicator" id="up_Img_Cover">
@@ -198,7 +200,7 @@
               <label class="field-label">Img_Sec1</label>
               <div class="image-upload-wrap" data-field="Img_Sec1">
                 <div class="image-drop-zone" id="dz_Img_Sec1" tabindex="0" role="button" aria-label="Img_Sec1 이미지 업로드">
-                  <span class="upload-icon">☁️</span>
+                  <span class="upload-icon"></span>
                   <span class="upload-text"><strong>클릭</strong> 또는 드래그하여 업로드</span>
                 </div>
                 <div class="uploading-indicator" id="up_Img_Sec1">
@@ -216,7 +218,7 @@
               <label class="field-label">Img_Sec2</label>
               <div class="image-upload-wrap" data-field="Img_Sec2">
                 <div class="image-drop-zone" id="dz_Img_Sec2" tabindex="0" role="button" aria-label="Img_Sec2 이미지 업로드">
-                  <span class="upload-icon">☁️</span>
+                  <span class="upload-icon"></span>
                   <span class="upload-text"><strong>클릭</strong> 또는 드래그하여 업로드</span>
                 </div>
                 <div class="uploading-indicator" id="up_Img_Sec2">
@@ -235,7 +237,7 @@
               <div class="image-upload-wrap" data-field="Img_Body_Mid">
                 <div class="image-drop-zone" id="dz_Img_Body_Mid" tabindex="0" role="button"
                   aria-label="Img_Body_Mid 이미지 업로드">
-                  <span class="upload-icon">☁️</span>
+                  <span class="upload-icon"></span>
                   <span class="upload-text"><strong>클릭</strong> 또는 드래그하여 업로드</span>
                 </div>
                 <div class="uploading-indicator" id="up_Img_Body_Mid">
@@ -253,7 +255,7 @@
               <label class="field-label">Img_Sec3</label>
               <div class="image-upload-wrap" data-field="Img_Sec3">
                 <div class="image-drop-zone" id="dz_Img_Sec3" tabindex="0" role="button" aria-label="Img_Sec3 이미지 업로드">
-                  <span class="upload-icon">☁️</span>
+                  <span class="upload-icon"></span>
                   <span class="upload-text"><strong>클릭</strong> 또는 드래그하여 업로드</span>
                 </div>
                 <div class="uploading-indicator" id="up_Img_Sec3">
@@ -273,7 +275,7 @@
         <!-- 3. 개별 기사 편집 (클릭 시 열림) -->
         <section class="editor-section hidden" id="activeArticleSection">
           <div class="section-header">
-            <div class="section-icon violet">📌</div>
+            <div class="section-icon violet"></div>
             <span class="section-title" id="activeArticleTitleLabel">기사 편집</span>
             <span class="section-subtitle" id="activeArticleUuidLabel"></span>
           </div>
@@ -299,7 +301,7 @@
               <div class="image-upload-wrap" data-field="Item_Thumb">
                 <div class="image-drop-zone" id="dz_Item_Thumb" tabindex="0" role="button"
                   aria-label="Item_Thumb 이미지 업로드">
-                  <span class="upload-icon">☁️</span>
+                  <span class="upload-icon"></span>
                   <span class="upload-text"><strong>클릭</strong> 또는 드래그하여 업로드</span>
                 </div>
                 <div class="uploading-indicator" id="up_Item_Thumb">
@@ -315,7 +317,7 @@
 
             <div class="field-wrap" style="align-self:end; padding-bottom:6px;">
               <button class="btn btn-save" id="saveActiveBtn" style="width:100%;">
-                <span>💾</span> 기사 변경사항 저장
+                <span></span> 기사 변경사항 저장
               </button>
             </div>
 
@@ -332,7 +334,7 @@
 ══════════════════════════════════════════════════════ -->
   <div class="preview-overlay" id="previewOverlay">
     <div class="preview-toolbar">
-      <div class="preview-toolbar-title">👁 리포트 미리 보기</div>
+      <div class="preview-toolbar-title">리포트 미리 보기</div>
       <button class="preview-close-btn" id="previewCloseBtn">✕ 닫기</button>
     </div>
     <div class="preview-content" id="previewContent">
@@ -350,22 +352,27 @@
     </div>
     <div class="bar-inner">
       <button class="btn btn-save" id="btnPreview" title="미리 보기" disabled>
-        <span>👁</span>
+        <span></span>
         미리 보기
       </button>
       <div class="btn-divider"></div>
       <button class="btn btn-save" id="btnSave" title="중간 저장" disabled>
-        <span>💾</span>
+        <span></span>
         중간 저장
       </button>
       <div class="btn-divider"></div>
       <button class="btn btn-generate" id="btnGenerate" title="AI 본문 생성" disabled>
         <div class="btn-spinner" id="generateSpinner"></div>
-        <span id="generateBtnText">✨ AI 본문 생성</span>
+        <span id="generateBtnText">AI 본문 생성</span>
       </button>
       <div class="btn-divider"></div>
+      <button class="btn btn-save" id="btnUnpublish" title="Ready로 되돌리기"
+        style="display:none; background:var(--bg-glass); color:#f87171; border: 1px solid rgba(248,113,113,0.3);">
+        <span></span>
+        Ready로 되돌리기
+      </button>
       <button class="btn btn-publish" id="btnPublish" title="최종 발행" disabled>
-        <span>🚀</span>
+        <span></span>
         최종 발행
       </button>
     </div>
