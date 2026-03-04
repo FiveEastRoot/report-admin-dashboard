@@ -872,24 +872,13 @@ function buildPreviewHtml() {
 }
 
 function openPreview() {
-  const overlay = $('previewOverlay');
-  const content = $('previewContent');
-  content.innerHTML = buildPreviewHtml();
-  overlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-function closePreview() {
-  const overlay = $('previewOverlay');
-  overlay.classList.remove('open');
-  document.body.style.overflow = '';
+  const currentVal = DOM.datePicker.value;
+  if (!currentVal) return;
+  showToast('마지막으로 저장된 내용을 기준으로 표시됩니다.', 'info', 3000);
+  window.open(`./viewer_daily.html?date=${currentVal}`, '_blank');
 }
 
 DOM.btnPreview.addEventListener('click', openPreview);
-$('previewCloseBtn').addEventListener('click', closePreview);
-$('previewOverlay').addEventListener('click', (e) => {
-  if (e.target === $('previewOverlay')) closePreview();
-});
 
 /* ─── INIT ────────────────────────────────────────────────────── */
 
