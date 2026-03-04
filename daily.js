@@ -880,31 +880,49 @@ async function openPreview() {
   const currentVal = DOM.reportDate.value;
   if (!currentVal) return;
 
-  // Open window synchronously to bypass popup blockers
-  const previewWindow = window.open('about:blank', '_blank');
-  if (previewWindow) {
-    previewWindow.document.write('<div style="font-family: sans-serif; padding: 20px; text-align: center; color: #555;"><h3 style="color: #453FE8;">미리보기 준비 중...</h3><p>최신 변경사항을 저장하고 있습니다.</p></div>');
-  } else {
-    showToast('팝업 차단이 설정되어 있을 수 있습니다. 브라우저 상단에서 팝업을 허용해주세요.', 'warning', 5000);
-  }
+  const overlay = document.getElementById('previewOverlay');
+  const iframe = document.getElementById('previewIframe');
+  if (!overlay || !iframe) return;
+
+  // Show loading indicator in iframe
+  iframe.srcdoc = '<div style="font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; color: #555;"><h3 style="color: #453FE8; margin-bottom: 8px;">미리보기 준비 중...</h3><p>최신 변경사항을 저장하고 있습니다.</p></div>';
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
 
   // Auto-save before previewing
   try {
     showToast('미리보기 전 자동 저장 중...', 'info', 2000);
-    await saveData(); // Will show its own success toast
+    await saveData();
   } catch (e) {
     console.error('Preview auto-save failed:', e);
     showToast('자동 저장에 실패했습니다. 이전 버전이 표시될 수 있습니다.', 'error', 3000);
   }
 
-  // Redirect the opened window to the actual viewer using an absolute URL
-  if (previewWindow) {
-    const targetUrl = new URL(`./viewer_daily.html?date=${currentVal}`, window.location.href).href;
-    previewWindow.location.href = targetUrl;
+  // Load actual viewer into iframe using an absolute URL
+  iframe.removeAttribute('srcdoc');
+  iframe.src = new URL(`./viewer_daily.html?date=${currentVal}`, window.location.href).href;
+}
+
+function closePreview() {
+  const overlay = document.getElementById('previewOverlay');
+  const iframe = document.getElementById('previewIframe');
+  if (overlay) overlay.classList.remove('open');
+  if (iframe) {
+    iframe.src = '';
+    iframe.removeAttribute('srcdoc');
   }
+  document.body.style.overflow = '';
 }
 
 DOM.btnPreview.addEventListener('click', openPreview);
+const previewCloseBtn = document.getElementById('previewCloseBtn');
+if (previewCloseBtn) previewCloseBtn.addEventListener('click', closePreview);
+const previewOverlay = document.getElementById('previewOverlay');
+if (previewOverlay) {
+  previewOverlay.addEventListener('click', (e) => {
+    if (e.target === previewOverlay) closePreview();
+  });
+}
 
 /* ─── INIT ────────────────────────────────────────────────────── */
 
