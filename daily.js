@@ -871,10 +871,20 @@ function buildPreviewHtml() {
   return html;
 }
 
-function openPreview() {
+async function openPreview() {
   const currentVal = DOM.datePicker.value;
   if (!currentVal) return;
-  showToast('마지막으로 저장된 내용을 기준으로 표시됩니다.', 'info', 3000);
+
+  // Auto-save before previewing
+  try {
+    showToast('미리보기 전 자동 저장 중...', 'info', 2000);
+    await saveData('DRAFT'); // Will show its own success toast
+  } catch (e) {
+    console.error('Preview auto-save failed:', e);
+    // Proceed to open preview anyway, but warn user
+    showToast('자동 저장에 실패했습니다. 이전 버전이 표시될 수 있습니다.', 'error', 3000);
+  }
+
   window.open(`./viewer_daily.html?date=${currentVal}`, '_blank');
 }
 
