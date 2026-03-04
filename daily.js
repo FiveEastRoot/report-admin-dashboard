@@ -605,9 +605,8 @@ function collectReportUpdates() {
 
 /* ─── PANEL C BUTTON HANDLERS ─────────────────────────────────── */
 
-/* 중간 저장 */
-DOM.btnSave.addEventListener('click', async () => {
-  if (!state.reportDate) { showToast('리포트를 먼저 로드해 주세요.', 'warning'); return; }
+async function saveData() {
+  if (!state.reportDate) { showToast('리포트를 먼저 로드해 주세요.', 'warning'); throw new Error('No date'); }
 
   DOM.btnSave.disabled = true;
   try {
@@ -633,9 +632,15 @@ DOM.btnSave.addEventListener('click', async () => {
     showToast('저장 완료', 'success');
   } catch (err) {
     showToast('저장 실패: ' + err.message, 'error');
+    throw err;
   } finally {
     DOM.btnSave.disabled = false;
   }
+}
+
+/* 중간 저장 */
+DOM.btnSave.addEventListener('click', () => {
+  saveData().catch(() => { });
 });
 
 /* 개별 기사 저장 버튼 */
@@ -878,7 +883,7 @@ async function openPreview() {
   // Auto-save before previewing
   try {
     showToast('미리보기 전 자동 저장 중...', 'info', 2000);
-    await saveData('DRAFT'); // Will show its own success toast
+    await saveData(); // Will show its own success toast
   } catch (e) {
     console.error('Preview auto-save failed:', e);
     // Proceed to open preview anyway, but warn user
