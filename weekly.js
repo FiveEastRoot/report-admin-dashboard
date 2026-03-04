@@ -400,7 +400,7 @@ function renderModalList(articles) {
         <div class="modal-article-meta">
           ${catHtml}
           ${scoreHtml}
-          ${art.date ? `<span class="tag" style="background:rgba(255,255,255,0.06);color:var(--text-muted)">${escHtml(art.date)}</span>` : ''}
+          ${art.date ? `<span class="tag" style="background:rgba(0,45,84,0.06);color:var(--text-muted)">${escHtml(art.date)}</span>` : ''}
         </div>
       </div>
     `;
