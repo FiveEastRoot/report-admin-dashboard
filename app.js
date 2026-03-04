@@ -15,7 +15,7 @@ const CONFIG = {
   // 로컬 테스트 시: http://localhost:8888/api/gas (netlify dev 사용)
   // Netlify 배포 후: /api/gas (자동으로 /.netlify/functions/gas-proxy 호출)
   GAS_URL: '/api/gas',
-  R2_UPLOAD_URL: '', // ← Cloudflare Worker URL 세팅 후 여기에 입력
+  R2_UPLOAD_URL: 'https://dashboard-image-upload.geun9265.workers.dev/',
   POLL_INTERVAL_MS: 5000,        // AI 생성 폴링 주기 (5초)
   POLL_TIMEOUT_MS: 150000,      // 최대 대기 시간 (2.5분)
 };
