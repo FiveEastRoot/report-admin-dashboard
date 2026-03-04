@@ -70,7 +70,7 @@ const DOM = {
   loadingDesc: $('loadingDesc'),
 
   // Report text fields (from‐name → element)
-  textFields: ['Headline', 'Head_Desc', 'Why_Imp', 'Point_Now', 'App_Review', 'App_Prep', 'App_Point'],
+  textFields: ['Headline', 'Head_Desc', 'Why_Imp', 'Point_Now', 'App_Review', 'App_Prep', 'App_Point', 'Section_Note'],
   imgFields: ['Img_Cover', 'Img_Sec1', 'Img_Sec2', 'Img_Sec3'],
 };
 
