@@ -882,17 +882,27 @@ async function openPreview() {
   const currentVal = DOM.reportDate.value;
   if (!currentVal) return;
 
+  // Open window synchronously to bypass popup blockers
+  const previewWindow = window.open('about:blank', '_blank');
+  if (previewWindow) {
+    previewWindow.document.write('<div style="font-family: sans-serif; padding: 20px; text-align: center; color: #555;"><h3 style="color: #453FE8;">미리보기 준비 중...</h3><p>최신 변경사항을 저장하고 있습니다.</p></div>');
+  } else {
+    showToast('팝업 차단이 설정되어 있을 수 있습니다. 브라우저 상단에서 팝업을 허용해주세요.', 'warning', 5000);
+  }
+
   // Auto-save before previewing
   try {
     showToast('미리보기 전 자동 저장 중...', 'info', 2000);
     await saveData(); // Will show its own success toast
   } catch (e) {
     console.error('Preview auto-save failed:', e);
-    // Proceed to open preview anyway, but warn user
     showToast('자동 저장에 실패했습니다. 이전 버전이 표시될 수 있습니다.', 'error', 3000);
   }
 
-  window.open(`./viewer_weekly.html?week=${currentVal}`, '_blank');
+  // Redirect the opened window to the actual viewer
+  if (previewWindow) {
+    previewWindow.location.href = `./viewer_weekly.html?week=${currentVal}`;
+  }
 }
 
 DOM.btnPreview.addEventListener('click', openPreview);
