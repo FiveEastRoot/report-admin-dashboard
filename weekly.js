@@ -900,9 +900,9 @@ async function openPreview() {
     showToast('자동 저장에 실패했습니다. 이전 버전이 표시될 수 있습니다.', 'error', 3000);
   }
 
-  // Load actual viewer into iframe
+  // Load actual viewer into iframe from the root path
   iframe.removeAttribute('srcdoc');
-  iframe.src = `viewer_weekly.html?week=${currentVal}`;
+  iframe.src = `/viewer_weekly.html?week=${currentVal}`;
 }
 
 function closePreview() {
