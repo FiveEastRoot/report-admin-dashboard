@@ -81,7 +81,8 @@ body {
   grid-template-areas:
     "header header"
     "panel-a panel-b";
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   gap: 0;
 }
 
@@ -416,7 +417,7 @@ body {
   grid-area: panel-b;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 64px);
+  height: 100%;
   overflow: hidden;
 }
 
@@ -497,6 +498,12 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
+}
+
+@media (max-width: 1024px) {
+  .fields-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .fields-grid.single {
