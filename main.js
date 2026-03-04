@@ -1,7 +1,7 @@
 'use strict';
 
 const CONFIG = {
-    GAS_URL: 'https://script.google.com/macros/s/AKfycbyo_PUHGIiZ28JiK0DNr53S4reZ3Ia9n21NTcTg7HSKWjvSF88Q2FvLJtABTPlS5mGV/exec',
+    GAS_URL: 'https://script.google.com/macros/s/AKfycbxosmr9t7qMMFxLTDMmuZZpsbLdZtLJms536RwmY1ArmMOANP99qmZMB0PODt6UOMgi/exec',
 };
 
 const DOM = {

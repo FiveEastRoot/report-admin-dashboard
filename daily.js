@@ -12,7 +12,7 @@
 ─────────────────────────────────────────────────────────────── */
 const CONFIG = {
   // 직접 브라우저에서 GAS 접근 (text/plain 을 이용해 Preflight 우회, 502 Timeout 방지)
-  GAS_URL: 'https://script.google.com/macros/s/AKfycbyo_PUHGIiZ28JiK0DNr53S4reZ3Ia9n21NTcTg7HSKWjvSF88Q2FvLJtABTPlS5mGV/exec',
+  GAS_URL: 'https://script.google.com/macros/s/AKfycbxosmr9t7qMMFxLTDMmuZZpsbLdZtLJms536RwmY1ArmMOANP99qmZMB0PODt6UOMgi/exec',
   R2_UPLOAD_URL: 'https://dashboard-image-upload.geun9265.workers.dev/',
   POLL_INTERVAL_MS: 5000,        // AI 생성 폴링 주기 (5초)
   POLL_TIMEOUT_MS: 150000,      // 최대 대기 시간 (2.5분)
@@ -864,11 +864,15 @@ $('previewOverlay').addEventListener('click', (e) => {
 /* ─── INIT ────────────────────────────────────────────────────── */
 
 function init() {
-  // Default date = today (KST: UTC+9)
+  // Get date from URL or default to today (KST: UTC+9)
+  const urlParams = new URLSearchParams(window.location.search);
+  const queryDate = urlParams.get('date');
+
   const today = new Date(Date.now() + 9 * 3600 * 1000);
-  const todayStr = fmtDate(today);
-  DOM.reportDate.value = todayStr;
-  state.reportDate = todayStr;
+  const targetDateStr = queryDate || fmtDate(today);
+
+  DOM.reportDate.value = targetDateStr;
+  state.reportDate = targetDateStr;
 
   // Keyboard shortcut: Escape closes modals
   document.addEventListener('keydown', (e) => {
@@ -880,7 +884,7 @@ function init() {
 
   // Auto-load on page open
   console.log('%c[Daily Report Admin] 초기화 완료. 리포트를 로드합니다…', 'color:#7C6AF7;font-weight:bold');
-  loadReport(todayStr);
+  loadReport(targetDateStr);
 }
 
 init();
