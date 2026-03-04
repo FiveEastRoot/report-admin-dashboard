@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>통합 리포트 대시보드 — Report Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .dashboard-brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .dashboard-brand h1 {
+            font-size: 28px;
+        }
+
+        .dashboard-logo {
+            font-size: 32px;
+        }
+
+        .boards-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .board-card {
+            background: rgba(30, 32, 40, 0.7);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .board-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .board-header h2 {
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .report-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .report-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            color: var(--text-main);
+            transition: all 0.2s;
+        }
+
+        .report-item:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .report-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .report-date {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .report-headline {
+            font-size: 13px;
+            color: var(--text-muted);
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Re-use status badges from style.css */
+        .btn-create-new {
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .btn-create-new:hover {
+            background: var(--primary-hover);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-card">
+            <div class="spinner-lg"></div>
+            <span class="loading-label" id="loadingLabel">리포트 현황을 불러오는 중...</span>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="dashboard-brand">
+                <div class="dashboard-logo">📊</div>
+                <h1>통합 리포트 대시보드</h1>
+            </div>
+        </header>
+
+        <div class="boards-grid">
+            <!-- Daily Reports -->
+            <section class="board-card">
+                <div class="board-header">
+                    <h2>📅 데일리 리포트 (Daily)</h2>
+                    <a href="daily.html" class="btn-create-new">에디터 열기</a>
+                </div>
+                <div class="report-list" id="dailyList">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <!-- Weekly Reports -->
+            <section class="board-card">
+                <div class="board-header">
+                    <h2>📆 위클리 리포트 (Weekly)</h2>
+                    <a href="weekly.html" class="btn-create-new">에디터 열기</a>
+                </div>
+                <div class="report-list" id="weeklyList">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+
+</html>
