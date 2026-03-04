@@ -898,9 +898,12 @@ async function openPreview() {
     showToast('자동 저장에 실패했습니다. 이전 버전이 표시될 수 있습니다.', 'error', 3000);
   }
 
-  // Load actual viewer into iframe from the root path
+  // Robust path resolution for Netlify (handles subdirectories, pretty URLs)
+  const basePath = window.location.href.split('?')[0];
+  const dirPath = basePath.substring(0, basePath.lastIndexOf('/'));
+
   iframe.removeAttribute('srcdoc');
-  iframe.src = `/viewer_daily.html?date=${currentVal}`;
+  iframe.src = `${dirPath}/viewer_daily.html?date=${currentVal}`;
 }
 
 function closePreview() {
