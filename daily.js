@@ -897,9 +897,10 @@ async function openPreview() {
     showToast('자동 저장에 실패했습니다. 이전 버전이 표시될 수 있습니다.', 'error', 3000);
   }
 
-  // Redirect the opened window to the actual viewer
+  // Redirect the opened window to the actual viewer using an absolute URL
   if (previewWindow) {
-    previewWindow.location.href = `./viewer_daily.html?date=${currentVal}`;
+    const targetUrl = new URL(`./viewer_daily.html?date=${currentVal}`, window.location.href).href;
+    previewWindow.location.href = targetUrl;
   }
 }
 
