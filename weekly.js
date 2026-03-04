@@ -69,8 +69,8 @@ const DOM = {
   loadingDesc: $('loadingDesc'),
 
   // Report text fields (from‐name → element)
-  textFields: ['Weekly_Headline', 'Theme_1', 'Theme_2', 'Theme_3', 'Weekly_Summary'],
-  imgFields: ['Img_Cover', 'Img_Sec1', 'Img_Sec2', 'Img_Sec3'],
+  textFields: ['Headline', 'Head_Desc', 'Context_Chg', 'Point_Def', 'Body_Flow', 'Body_Issues', 'Body_3Key', 'App_Question', 'App_Predict'],
+  imgFields: ['Img_Cover', 'Img_Sec1', 'Img_Sec2', 'Img_Body_Mid', 'Img_Sec3'],
 };
 
 /* ─── UTILITIES ───────────────────────────────────────────────── */
@@ -442,7 +442,7 @@ DOM.modalSearch.addEventListener('input', () => {
 
 /* ─── PANEL B — IMAGE UPLOAD ──────────────────────────────────── */
 
-const IMAGE_FIELD_IDS = ['Img_Cover', 'Img_Sec1', 'Img_Sec2', 'Img_Sec3', 'Item_Thumb'];
+const IMAGE_FIELD_IDS = ['Img_Cover', 'Img_Sec1', 'Img_Sec2', 'Img_Body_Mid', 'Img_Sec3', 'Item_Thumb'];
 
 function setImagePreview(fieldName, url) {
   const prev = $(`prev_${fieldName}`);
@@ -778,7 +778,7 @@ function buildPreviewHtml() {
   // Header
   html += `<div class="pv-header">`;
   html += `<div class="pv-date">WEEKLY REPORT — ${escHtml(state.reportDate)}</div>`;
-  html += `<h1 class="pv-headline">${escHtml(r.Weekly_Headline || '(헤드라인 없음)')}</h1>`;
+  html += `<h1 class="pv-headline">${escHtml(r.Headline || '(헤드라인 없음)')}</h1>`;
   if (r.Head_Desc) html += `<p class="pv-head-desc">${escHtml(r.Head_Desc)}</p>`;
   html += `</div>`;
 
@@ -789,11 +789,13 @@ function buildPreviewHtml() {
 
   // Text sections
   const sections = [
-    { key: 'Why_Imp', label: '왜 중요한가 (Why It Matters)', img: 'Img_Sec1' },
-    { key: 'Point_Now', label: '지금 주목할 포인트 (Point Now)', img: 'Img_Sec2' },
-    { key: 'App_Review', label: '앱 리뷰 (Application Review)', img: 'Img_Sec3' },
-    { key: 'App_Prep', label: '준비 사항 (Application Prep)', img: null },
-    { key: 'App_Point', label: '핵심 적용 (Application Point)', img: null },
+    { key: 'Context_Chg', label: '맥락 변화 (Context Change)', img: 'Img_Sec1' },
+    { key: 'Point_Def', label: '주요 포인트 (Point Definition)', img: 'Img_Sec2' },
+    { key: 'Body_Flow', label: '본문 흐름 (Body Flow)', img: 'Img_Body_Mid' },
+    { key: 'Body_Issues', label: '주요 이슈 (Body Issues)', img: null },
+    { key: 'Body_3Key', label: '핵심 3 요약 (Body 3 Key)', img: null },
+    { key: 'App_Question', label: '적용 질문 (App Question)', img: 'Img_Sec3' },
+    { key: 'App_Predict', label: '향후 전망 (App Predict)', img: null },
   ];
 
   sections.forEach(sec => {

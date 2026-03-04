@@ -111,30 +111,56 @@
           <div class="fields-grid">
 
             <div class="field-wrap full">
-              <label class="field-label" for="f_Weekly_Headline">Weekly_Headline <span class="required">*</span></label>
-              <input class="form-input" id="f_Weekly_Headline" name="Weekly_Headline" type="text"
-                placeholder="이번 주 메인 헤드라인을 입력하세요" />
+              <label class="field-label" for="f_Headline">Headline <span class="required">*</span></label>
+              <input class="form-input" id="f_Headline" name="Headline" type="text" placeholder="이번 주 메인 헤드라인을 입력하세요" />
             </div>
 
             <div class="field-wrap full">
-              <label class="field-label" for="f_Theme_1">Theme_1</label>
-              <input class="form-input" id="f_Theme_1" name="Theme_1" type="text" placeholder="첫 번째 핵심 테마..." />
+              <label class="field-label" for="f_Head_Desc">Head_Desc</label>
+              <textarea class="form-textarea short" id="f_Head_Desc" name="Head_Desc"
+                placeholder="헤드라인 부연 설명..."></textarea>
             </div>
 
             <div class="field-wrap full">
-              <label class="field-label" for="f_Theme_2">Theme_2</label>
-              <input class="form-input" id="f_Theme_2" name="Theme_2" type="text" placeholder="두 번째 핵심 테마..." />
+              <label class="field-label" for="f_Context_Chg">Context_Chg</label>
+              <textarea class="form-textarea medium" id="f_Context_Chg" name="Context_Chg"
+                placeholder="해결하려는 맥락..."></textarea>
             </div>
 
-            <div class="field-wrap full">
-              <label class="field-label" for="f_Theme_3">Theme_3</label>
-              <input class="form-input" id="f_Theme_3" name="Theme_3" type="text" placeholder="세 번째 핵심 테마..." />
+            <div class="field-wrap">
+              <label class="field-label" for="f_Point_Def">Point_Def</label>
+              <textarea class="form-textarea medium" id="f_Point_Def" name="Point_Def"
+                placeholder="주요 포인트..."></textarea>
             </div>
 
-            <div class="field-wrap full">
-              <label class="field-label" for="f_Weekly_Summary">Weekly_Summary</label>
-              <textarea class="form-textarea tall" id="f_Weekly_Summary" name="Weekly_Summary"
-                placeholder="주간 동향 요약본 (AI가 채웁니다)"></textarea>
+            <div class="field-wrap">
+              <label class="field-label" for="f_Body_Flow">Body_Flow</label>
+              <textarea class="form-textarea medium" id="f_Body_Flow" name="Body_Flow"
+                placeholder="본문 흐름..."></textarea>
+            </div>
+
+            <div class="field-wrap">
+              <label class="field-label" for="f_Body_Issues">Body_Issues</label>
+              <textarea class="form-textarea medium" id="f_Body_Issues" name="Body_Issues"
+                placeholder="글로벌/국내 이슈 요약..."></textarea>
+            </div>
+
+            <div class="field-wrap">
+              <label class="field-label" for="f_Body_3Key">Body_3Key</label>
+              <textarea class="form-textarea medium" id="f_Body_3Key" name="Body_3Key"
+                placeholder="핵심 요약 3가지..."></textarea>
+            </div>
+
+            <div class="field-wrap">
+              <label class="field-label" for="f_App_Question">App_Question</label>
+              <textarea class="form-textarea medium" id="f_App_Question" name="App_Question"
+                placeholder="적용 질문..."></textarea>
+            </div>
+
+            <div class="field-wrap">
+              <label class="field-label" for="f_App_Predict">App_Predict</label>
+              <textarea class="form-textarea medium" id="f_App_Predict" name="App_Predict"
+                placeholder="향후 전망..."></textarea>
             </div>
 
           </div>
@@ -201,6 +227,25 @@
                 <input type="hidden" id="f_Img_Sec2" name="Img_Sec2" />
                 <input class="image-url-input" id="url_Img_Sec2" type="text" placeholder="이미지 URL 직접 입력 또는 자동 삽입" />
                 <input type="file" class="sr-only" id="file_Img_Sec2" accept="image/*" data-target="Img_Sec2" />
+              </div>
+            </div>
+
+            <div class="field-wrap">
+              <label class="field-label">Img_Body_Mid</label>
+              <div class="image-upload-wrap" data-field="Img_Body_Mid">
+                <div class="image-drop-zone" id="dz_Img_Body_Mid" tabindex="0" role="button"
+                  aria-label="Img_Body_Mid 이미지 업로드">
+                  <span class="upload-icon">☁️</span>
+                  <span class="upload-text"><strong>클릭</strong> 또는 드래그하여 업로드</span>
+                </div>
+                <div class="uploading-indicator" id="up_Img_Body_Mid">
+                  <div class="spinner-sm"></div>
+                  <span>업로드 중...</span>
+                </div>
+                <img class="image-preview" id="prev_Img_Body_Mid" alt="Img_Body_Mid 미리보기" />
+                <input type="hidden" id="f_Img_Body_Mid" name="Img_Body_Mid" />
+                <input class="image-url-input" id="url_Img_Body_Mid" type="text" placeholder="이미지 URL 직접 입력 또는 자동 삽입" />
+                <input type="file" class="sr-only" id="file_Img_Body_Mid" accept="image/*" data-target="Img_Body_Mid" />
               </div>
             </div>
 
