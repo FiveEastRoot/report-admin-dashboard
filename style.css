@@ -431,12 +431,12 @@ body {
   gap: 20px;
 }
 
-/* Sections */
 .editor-section {
   background: var(--bg-glass);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  overflow: hidden;
+  overflow-y: auto;
+  max-height: 60vh;
   transition: border-color var(--transition);
 }
 
@@ -545,7 +545,7 @@ body {
   font-size: 13px;
   padding: 9px 12px;
   transition: all var(--transition);
-  resize: none;
+  resize: vertical;
   width: 100%;
   overflow-y: auto;
 }
