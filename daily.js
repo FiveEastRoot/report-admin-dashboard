@@ -877,7 +877,7 @@ function buildPreviewHtml() {
 }
 
 async function openPreview() {
-  const currentVal = DOM.datePicker.value;
+  const currentVal = DOM.reportDate.value;
   if (!currentVal) return;
 
   // Auto-save before previewing
