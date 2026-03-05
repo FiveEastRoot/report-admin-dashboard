@@ -994,7 +994,7 @@ const mjmlTemplateDaily = `
         <mj-text align="center" font-size="22px" font-weight="800" color="#002D54" padding-bottom="8px">{{Report_Type}}</mj-text>
         <mj-button background-color="rgba(69, 63, 232, 0.08)" color="#453FE8" border-radius="99px" font-weight="700" font-size="13px" padding="0 0 20px 0" inner-padding="6px 16px">{{Date}}</mj-button>
         <mj-text align="center" font-size="32px" font-weight="800" color="#002D54" line-height="1.3" padding-bottom="16px">{{Headline}}</mj-text>
-        {{#if Head_Desc}}<mj-text align="center" font-size="16px" color="#6B7280" line-height="1.6" padding="0 20px">{{Head_Desc}}</mj-text>{{/if}}
+        {{#if Head_Desc}}<mj-text align="center" font-size="16px" color="#6B7280" line-height="1.6" padding="0 20px">{{{Head_Desc}}}</mj-text>{{/if}}
     </mj-column></mj-section>
     {{#if Img_Cover}}<mj-section padding="20px 20px 32px 20px"><mj-column><mj-image src="{{Img_Cover}}" alt="Cover" border-radius="16px" /></mj-column></mj-section>{{/if}}
     {{#if Img_Sec1}}<mj-section padding="0 20px 24px 20px"><mj-column><mj-image src="{{Img_Sec1}}" border-radius="12px" /></mj-column></mj-section>{{/if}}

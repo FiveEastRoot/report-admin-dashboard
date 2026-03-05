@@ -993,9 +993,10 @@ const mjmlTemplateWeekly = `
         <mj-text align="center" font-size="22px" font-weight="800" color="#002D54" padding-bottom="8px">{{Report_Type}}</mj-text>
         <mj-button background-color="rgba(69, 63, 232, 0.08)" color="#453FE8" border-radius="99px" font-weight="700" font-size="13px" padding="0 0 20px 0" inner-padding="6px 16px">{{Date}}</mj-button>
         <mj-text align="center" font-size="32px" font-weight="800" color="#002D54" line-height="1.3" padding-bottom="16px">{{Headline}}</mj-text>
-        {{#if Head_Desc}}<mj-text align="center" font-size="16px" color="#6B7280" line-height="1.6" padding="0 20px">{{Head_Desc}}</mj-text>{{/if}}
+        {{#if Head_Desc}}<mj-text align="center" font-size="16px" color="#6B7280" line-height="1.6" padding="0 20px">{{{Head_Desc}}}</mj-text>{{/if}}
     </mj-column></mj-section>
     {{#if Img_Cover}}<mj-section padding="20px 20px 32px 20px"><mj-column><mj-image src="{{Img_Cover}}" border-radius="16px" /></mj-column></mj-section>{{/if}}
+    {{#if Point_Def}}
     {{#if Point_Def}}
     <mj-section padding="0 20px 12px 20px"><mj-column><mj-text font-size="18px" font-weight="800" color="#44A4FF" padding-bottom="12px"><span style="color:#39E6FD; margin-right:6px;">●</span> 핵심 정의</mj-text></mj-column></mj-section>
     <mj-section padding="0 20px 32px 20px"><mj-column background-color="#FFFFFF" border="1px solid #E5E7EB" border-radius="12px" css-class="highlight-box"><mj-text font-size="16px" color="#1F2937" padding="18px">{{{Point_Def}}}</mj-text></mj-column></mj-section>
@@ -1010,22 +1011,6 @@ const mjmlTemplateWeekly = `
     <mj-section padding="0 20px 32px 20px"><mj-column background-color="#FFFFFF" border="1px solid #E5E7EB" border-radius="12px"><mj-text font-size="16px" color="#1F2937" padding="18px">{{{Source_List}}}</mj-text></mj-column></mj-section>
     {{/if}}
     {{#if Section_Note}}<mj-section padding="0 20px 48px 20px"><mj-column background-color="#F3F4F6" border-radius="8px"><mj-text font-size="14px" color="#6B7280" padding="16px">{{{Section_Note}}}</mj-text></mj-column></mj-section>{{/if}}
-
-    {{#if Categories.length}}
-      {{#each Categories}}
-        <mj-section padding="12px 20px 12px 20px"><mj-column><mj-text font-size="18px" font-weight="800" color="#002D54" padding-bottom="8px" border-bottom="2px solid #002D54">{{Category_Name}}</mj-text></mj-column></mj-section>
-        {{#each Articles}}
-        <mj-section padding="10px 20px 16px 20px">
-          <mj-column background-color="#FFFFFF" border="1px solid #E5E7EB" border-radius="12px" padding="16px">
-            <mj-text font-size="16px" font-weight="800" line-height="1.4" padding-bottom="8px">{{Title_Org}}</mj-text>
-            <mj-text font-size="14px" color="#4B5563" line-height="1.5" padding-bottom="12px">{{Core_Content}}</mj-text>
-            <mj-button href="{{Link}}" background-color="#FFFFFF" color="#453FE8" border="1px solid #453FE8" border-radius="6px" align="right" padding="0" inner-padding="6px 14px" font-size="12px" font-weight="700">원문 이동 →</mj-button>
-          </mj-column>
-        </mj-section>
-        {{/each}}
-        <mj-section padding="0 0 24px 0"><mj-column><mj-text></mj-text></mj-column></mj-section>
-      {{/each}}
-    {{/if}}
     <mj-section padding="24px 20px 48px 20px"><mj-column background-color="#453FE8" border-radius="16px" padding="24px">
         <mj-text color="#FFFFFF" font-size="20px" font-weight="800" padding-bottom="8px">K-BRAIN 플래티넘 멤버십 특별 혜택</mj-text>
         <mj-text color="#FFFFFF" font-size="15px" line-height="1.5" padding-bottom="16px" opacity="0.9">지금 가입하고 최신 산업 동향과 프리미엄 AI 리포트를 데이터 제한 없이 무제한으로 열람하세요.</mj-text>
@@ -1034,6 +1019,24 @@ const mjmlTemplateWeekly = `
   </mj-body>
 </mjml>
 `;
+
+function formatSourceListForEmail(text) {
+  if (!text) return '';
+  const lines = text.split('\n').filter(l => l.trim().length > 0);
+  let html = '';
+  lines.forEach(line => {
+    const tLine = line.replace(/^- /, '').trim();
+    const parts = tLine.split(' | ');
+    if (parts.length >= 2) {
+      const title = parts[0].trim();
+      const url = parts.slice(1).join(' | ').trim();
+      html += `<div style="margin-bottom: 8px;"><strong style="color: #4B5563;">${title}</strong><br/><a href="${url}" target="_blank" style="color: #453FE8; font-size: 14px; word-break: break-all;">${url}</a></div>`;
+    } else {
+      html += `<div style="margin-bottom: 8px; color: #4B5563;">${tLine}</div>`;
+    }
+  });
+  return html;
+}
 
 function formatTextForEmail(text) {
   if (!text) return '';
@@ -1130,8 +1133,8 @@ async function openEmailPreview() {
     Report_Type: 'Insight Weekly', Date: getVal('reportDate'), Headline: getVal('f_Headline'),
     Head_Desc: formatTextForEmail(getVal('f_Head_Desc')), Img_Cover: getVal('f_Img_Cover'),
     Point_Def: formatTextForEmail(getVal('f_Point_Def')), Body_Flow: formatBodyFlowForEmail(getVal('f_Body_Flow')),
-    Img_Sec3: getVal('f_Img_Sec3'), Source_List: formatTextForEmail(getVal('f_Source_List')),
-    Section_Note: formatTextForEmail(getVal('f_Section_Note')), Categories: groupedCategories
+    Img_Sec3: getVal('f_Img_Sec3'), Source_List: formatSourceListForEmail(getVal('f_Source_List')),
+    Section_Note: formatTextForEmail(getVal('f_Section_Note'))
   };
 
   try {
