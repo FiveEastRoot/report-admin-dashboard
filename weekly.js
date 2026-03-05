@@ -29,6 +29,15 @@ const state = {
   pollTimer: null,
 };
 
+const CAT_GROUP_NAMES = {
+  'CAT_01': '트렌드',
+  'CAT_02': '사례',
+  'CAT_03': '도구',
+  'CAT_04': '정책',
+  'CAT_05': '교육',
+  'CAT_06': '연구'
+};
+
 /* ─── DOM REFS ────────────────────────────────────────────────── */
 const $ = (id) => document.getElementById(id);
 
@@ -205,59 +214,75 @@ function renderArticleList() {
   DOM.articleCount.textContent = `${articles.length}개`;
   list.innerHTML = '';
 
+  // Group by Category_Group
+  const groups = {};
   articles.forEach((art, idx) => {
-    const card = document.createElement('div');
-    card.className = 'article-card';
-    card.dataset.uuid = art.uuid;
-    card.dataset.idx = idx;
-    card.draggable = true;
-    card.setAttribute('role', 'listitem');
-    card.setAttribute('aria-label', art.Title_Org || art.title || '기사');
+    const catId = art.Category_ID || art.category || 'ETC';
+    const groupName = CAT_GROUP_NAMES[catId] || '기타';
+    if (!groups[groupName]) groups[groupName] = [];
+    groups[groupName].push({ art, idx });
+  });
 
-    const thumbHtml = art.Item_Thumb || art.thumb
-      ? `<img class="article-thumb" src="${art.Item_Thumb || art.thumb}" alt="썸네일" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><div class="article-thumb-placeholder" style="display:none"></div>`
-      : `<div class="article-thumb-placeholder"></div>`;
+  const displayOrder = ['트렌드', '사례', '도구', '정책', '교육', '연구', '기타'];
 
-    const title = art.Subtitle || '(제목 없음)';
-    const subtitle = art.Title_Org || art.title || '';
-    const category = art.Category_ID || art.category || '';
-    const score = art.AI_Score !== undefined ? art.AI_Score : (art.score !== undefined ? art.score : '');
+  displayOrder.forEach(gName => {
+    if (!groups[gName]) return;
 
-    card.innerHTML = `
-      <span class="index-badge">${idx + 1}</span>
-      <span class="drag-handle" title="드래그하여 순서 변경">⠿</span>
-      ${thumbHtml}
-      <div class="article-info">
-        <div class="article-title">${escHtml(title)}</div>
-        ${subtitle ? `<div class="article-subtitle" style="font-size:11px; color:var(--text-muted); margin-bottom:4px;">${escHtml(subtitle)}</div>` : ''}
-        <div class="article-meta">
-          ${category ? `<span class="tag tag-category">${escHtml(String(category))}</span>` : ''}
-          ${score !== '' ? `<span class="tag tag-score">${score}</span>` : ''}
+    // Category Header
+    const header = document.createElement('div');
+    header.className = 'category-group-header';
+    header.innerHTML = `${gName} <span class="count-badge">${groups[gName].length}</span>`;
+    list.appendChild(header);
+
+    groups[gName].forEach(({ art, idx }) => {
+      const card = document.createElement('div');
+      card.className = 'article-card';
+      card.dataset.uuid = art.uuid;
+      card.dataset.idx = idx;
+      card.draggable = true;
+      card.setAttribute('role', 'listitem');
+      card.setAttribute('aria-label', art.Title_Org || art.title || '기사');
+
+      const thumbHtml = art.Item_Thumb || art.thumb
+        ? `<img class="article-thumb" src="${art.Item_Thumb || art.thumb}" alt="썸네일" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><div class="article-thumb-placeholder" style="display:none"></div>`
+        : `<div class="article-thumb-placeholder"></div>`;
+
+      const title = art.Subtitle || '(제목 없음)';
+      const subtitle = art.Title_Org || art.title || '';
+      const score = art.AI_Score !== undefined ? art.AI_Score : (art.score !== undefined ? art.score : '');
+
+      card.innerHTML = `
+        <span class="index-badge">${idx + 1}</span>
+        <span class="drag-handle" title="드래그하여 순서 변경">⠿</span>
+        ${thumbHtml}
+        <div class="article-info">
+          <div class="article-title">${escHtml(title)}</div>
+          ${subtitle ? `<div class="article-subtitle" style="font-size:11px; color:var(--text-muted); margin-bottom:4px;">${escHtml(subtitle)}</div>` : ''}
+          <div class="article-meta">
+            ${score !== '' ? `<span class="tag tag-score">점수: ${score}</span>` : ''}
+          </div>
         </div>
-      </div>
-      <button class="remove-btn" data-uuid="${art.uuid}" title="제외" aria-label="기사 제외">✕</button>
-    `;
+        <button class="remove-btn" data-uuid="${art.uuid}" title="제외" aria-label="기사 제외">✕</button>
+      `;
 
-    // Select article → populate active editor
-    card.addEventListener('click', (e) => {
-      if (e.target.classList.contains('remove-btn')) return;
-      selectArticle(art, card);
+      card.addEventListener('click', (e) => {
+        if (e.target.classList.contains('remove-btn')) return;
+        selectArticle(art, card);
+      });
+
+      card.querySelector('.remove-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        removeArticle(art.uuid);
+      });
+
+      card.addEventListener('dragstart', onDragStart);
+      card.addEventListener('dragover', onDragOver);
+      card.addEventListener('dragleave', onDragLeave);
+      card.addEventListener('drop', onDrop);
+      card.addEventListener('dragend', onDragEnd);
+
+      list.appendChild(card);
     });
-
-    // Remove button
-    card.querySelector('.remove-btn').addEventListener('click', (e) => {
-      e.stopPropagation();
-      removeArticle(art.uuid);
-    });
-
-    // Drag & Drop events
-    card.addEventListener('dragstart', onDragStart);
-    card.addEventListener('dragover', onDragOver);
-    card.addEventListener('dragleave', onDragLeave);
-    card.addEventListener('drop', onDrop);
-    card.addEventListener('dragend', onDragEnd);
-
-    list.appendChild(card);
   });
 }
 
@@ -382,37 +407,56 @@ function renderModalList(articles) {
   }
 
   DOM.modalList.innerHTML = '';
+
+  // Group by Category_Group
+  const groups = {};
   articles.forEach(art => {
-    const item = document.createElement('div');
-    item.className = 'modal-article-item' + (existing.has(art.uuid) ? ' already-added' : '');
-    item.dataset.uuid = art.uuid;
+    const catId = art.Category_ID || art.category || 'ETC';
+    const groupName = CAT_GROUP_NAMES[catId] || '기타';
+    if (!groups[groupName]) groups[groupName] = [];
+    groups[groupName].push(art);
+  });
 
-    // Use Subtitle as the main display title, and Title_Org as subtitle
-    const title = art.Subtitle || '(제목 없음)';
-    const subtitle = art.Title_Org || art.title || '';
-    const catHtml = art.category ? `<span class="tag tag-category">${escHtml(art.category)}</span>` : '';
-    const scoreHtml = art.score ? `<span class="tag tag-score">${art.score}</span>` : '';
+  const displayOrder = ['트렌드', '사례', '도구', '정책', '교육', '연구', '기타'];
 
-    item.innerHTML = `
-      <div class="modal-article-info">
-        <div class="modal-article-title">${escHtml(title)}</div>
-        ${subtitle ? `<div class="modal-article-subtitle" style="font-size:11px; color:var(--text-muted); margin-bottom:4px;">${escHtml(subtitle)}</div>` : ''}
-        <div class="modal-article-meta">
-          ${catHtml}
-          ${scoreHtml}
-          ${art.date ? `<span class="tag" style="background:rgba(0,45,84,0.06);color:var(--text-muted)">${escHtml(art.date)}</span>` : ''}
+  displayOrder.forEach(gName => {
+    if (!groups[gName]) return;
+
+    // Category Header
+    const header = document.createElement('div');
+    header.className = 'category-group-header';
+    header.innerHTML = `${gName} <span class="count-badge">${groups[gName].length}</span>`;
+    DOM.modalList.appendChild(header);
+
+    groups[gName].forEach(art => {
+      const item = document.createElement('div');
+      item.className = 'modal-article-item' + (existing.has(art.uuid) ? ' already-added' : '');
+      item.dataset.uuid = art.uuid;
+
+      const title = art.Subtitle || '(제목 없음)';
+      const subtitle = art.Title_Org || art.title || '';
+      const score = art.AI_Score !== undefined ? art.AI_Score : (art.score !== undefined ? art.score : '');
+
+      item.innerHTML = `
+        <div class="modal-article-info">
+          <div class="modal-article-title">${escHtml(title)}</div>
+          ${subtitle ? `<div class="modal-article-subtitle" style="font-size:11px; color:var(--text-muted); margin-bottom:4px;">${escHtml(subtitle)}</div>` : ''}
+          <div class="modal-article-meta">
+            ${score !== '' ? `<span class="tag tag-score">점수: ${score}</span>` : ''}
+            ${art.date ? `<span class="tag" style="background:rgba(0,45,84,0.06);color:var(--text-muted)">${escHtml(art.date)}</span>` : ''}
+          </div>
         </div>
-      </div>
-    `;
+      `;
 
-    if (!existing.has(art.uuid)) {
-      item.addEventListener('click', () => {
-        addArticleFromModal(art);
-        closeAddModal();
-      });
-    }
+      if (!existing.has(art.uuid)) {
+        item.addEventListener('click', () => {
+          addArticleFromModal(art);
+          closeAddModal();
+        });
+      }
 
-    DOM.modalList.appendChild(item);
+      DOM.modalList.appendChild(item);
+    });
   });
 }
 
