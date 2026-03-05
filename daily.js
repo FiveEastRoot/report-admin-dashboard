@@ -980,14 +980,14 @@ async function openPreview() {
     </div>
 
     <script src="\${dirPath}/viewer.js"></script>
+    <script src="\${dirPath}/viewer.js"></script>
     <script>
-        const previewData = \${JSON.stringify(state.reportData)};
+        window.INJECTED_DATE = "${currentVal}";
         
         // Use a polling mechanism to wait for viewer.js to finish loading
         function tryRender() {
-            if (typeof renderDailyReport === 'function') {
-                renderDailyReport(previewData);
-                document.getElementById('reportDate').textContent = previewData.Report_Date || '';
+            if (typeof initDailyViewer === 'function') {
+                initDailyViewer();
                 
                 // Hide header nav from preview if any
                 const navs = document.querySelectorAll('.header-nav');

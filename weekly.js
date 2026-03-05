@@ -1001,13 +1001,12 @@ async function openPreview() {
 
     <script src="\${dirPath}/viewer.js"></script>
     <script>
-        const previewData = \${JSON.stringify(state.reportData)};
+        window.INJECTED_WEEK = "${currentVal}";
         
         // Use a polling mechanism to wait for viewer.js to finish loading
         function tryRender() {
-            if (typeof renderWeeklyReport === 'function') {
-                renderWeeklyReport(previewData);
-                document.getElementById('reportDate').textContent = previewData.Report_Date || '';
+            if (typeof initWeeklyViewer === 'function') {
+                initWeeklyViewer();
                 
                 // Hide header nav from preview if any
                 const navs = document.querySelectorAll('.header-nav');
