@@ -1023,9 +1023,9 @@ const mjmlTemplateWeekly = `
     <mj-section padding="0 20px 32px 20px"><mj-column background-color="#FFFFFF" border="1px solid #E5E7EB" border-radius="12px"><mj-text font-size="16px" color="#1F2937" padding="18px">{{{Source_List}}}</mj-text></mj-column></mj-section>
     {{/if}}
     {{#if Section_Note}}
-    <mj-section padding="0 20px 48px 20px">
-      <mj-column background-color="#F3F4F6" border-radius="8px">
-        <mj-text font-size="14px" color="#6B7280" padding="16px">{{{Section_Note}}}</mj-text>
+    <mj-section padding="20px 20px 48px 20px">
+      <mj-column background-color="#F3F4F6" border-radius="12px">
+        <mj-text font-size="14px" color="#4B5563" padding="20px" line-height="1.6">{{{Section_Note}}}</mj-text>
       </mj-column>
     </mj-section>
     {{/if}}
