@@ -1071,7 +1071,15 @@ async function openEmailPreview() {
   try {
     const template = Handlebars.compile(mjmlTemplateDaily);
     const mjmlString = template(reportData);
-    const result = mjml2html(mjmlString, { validationLevel: 'soft' });
+
+    // Resolve MJML compile function safely depending on CDN exporting strategy
+    const compileFactory = (typeof mjml2html === 'function') ? mjml2html :
+      (typeof mjml === 'function') ? mjml :
+        (typeof mjml !== 'undefined' && typeof mjml.mjml2html === 'function') ? mjml.mjml2html : null;
+
+    if (!compileFactory) throw new Error("MJML compiler function not found.");
+
+    const result = compileFactory(mjmlString, { validationLevel: 'soft' });
 
     $('emailHtmlOutput').value = result.html;
     $('emailPreviewIframe').srcdoc = result.html;
