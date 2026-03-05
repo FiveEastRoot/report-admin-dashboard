@@ -1035,15 +1035,84 @@ const mjmlTemplateWeekly = `
 </mjml>
 `;
 
-function formatTextForEmail(text) { return text ? text.replace(/\n/g, '<br/>') : ''; }
+function formatTextForEmail(text) {
+  if (!text) return '';
+  const lines = text.split('\n');
+  let htmlContent = '';
+  let inUl = false;
+  lines.forEach(line => {
+    const tLine = line.trim();
+    if (tLine.startsWith('- ')) {
+      if (!inUl) { htmlContent += '<ul style="margin: 4px 0 12px 0; padding-left: 20px;">'; inUl = true; }
+      htmlContent += `<li style="margin-bottom: 4px;">${tLine.substring(2)}</li>`;
+    } else {
+      if (inUl) { htmlContent += '</ul>'; inUl = false; }
+      if (tLine) { htmlContent += `<div style="margin-bottom: 4px;">${tLine}</div>`; }
+      else { htmlContent += `<div style="height: 8px;"></div>`; }
+    }
+  });
+  if (inUl) { htmlContent += '</ul>'; }
+  return htmlContent;
+}
 
-function openEmailPreview() {
-  if (typeof showToast === 'function') showToast('이메일 컴파일 중...', 'info');
+function formatBodyFlowForEmail(text) {
+  if (!text) return '';
+  const lines = text.split('\n');
+  let htmlFlow = '';
+  let inUl = false;
+
+  lines.forEach(line => {
+    let tLine = line.trim();
+    if (!tLine) {
+      if (inUl) { htmlFlow += '</ul>'; inUl = false; }
+      htmlFlow += '<div style="height: 8px;"></div>';
+      return;
+    }
+
+    const titleMatch = tLine.match(/^\[(.*?)\](.*)$/);
+    if (titleMatch) {
+      if (inUl) { htmlFlow += '</ul>'; inUl = false; }
+      const title = `<div style="color: #453FE8; font-size: 16px; font-weight: 700; margin-top: 16px; margin-bottom: 8px;">${titleMatch[1]}</div>`;
+      htmlFlow += title;
+      const trailingText = titleMatch[2].trim();
+      if (trailingText) htmlFlow += `<div style="margin-bottom: 8px; line-height: 1.6;">${trailingText}</div>`;
+    } else if (tLine.startsWith('- ')) {
+      if (!inUl) { htmlFlow += '<ul style="margin: 4px 0 12px 0; padding-left: 20px; line-height: 1.6;">'; inUl = true; }
+      htmlFlow += `<li style="margin-bottom: 6px;">${tLine.substring(2)}</li>`;
+    } else {
+      if (inUl) { htmlFlow += '</ul>'; inUl = false; }
+      htmlFlow += `<div style="margin-bottom: 8px; line-height: 1.6;">${tLine}</div>`;
+    }
+  });
+  if (inUl) { htmlFlow += '</ul>'; }
+  return htmlFlow;
+}
+
+async function openEmailPreview() {
+  showToast('이메일 컴파일 중...', 'info');
+
+  const catNames = {
+    'CAT_01': 'AI·데이터 트렌드',
+    'CAT_02': 'AI·데이터 활용 사례',
+    'CAT_03': 'AI 인프라·플랫폼·도구',
+    'CAT_04': '정책, 제도, 거버넌스',
+    'CAT_05': '교육 인재 역량 개발',
+    'CAT_06': '연구 기술 동향 요약'
+  };
 
   const categoryMap = {};
   const groupedCategories = [];
-  (state.articles || []).forEach(a => {
-    const catName = a.Category_ID || '미분류';
+
+  // Sort articles by Category ID sequentially to ensure correct display order
+  const sortedArticles = [...(state.articles || [])].sort((a, b) => {
+    const aId = a.Category_ID || 'ZZZ';
+    const bId = b.Category_ID || 'ZZZ';
+    return aId.localeCompare(bId);
+  });
+
+  sortedArticles.forEach(a => {
+    const catId = a.Category_ID || '미분류';
+    const catName = catNames[catId] || catId;
     if (!categoryMap[catName]) {
       categoryMap[catName] = { Category_Name: catName, Articles: [] };
       groupedCategories.push(categoryMap[catName]);
@@ -1060,7 +1129,7 @@ function openEmailPreview() {
   const reportData = {
     Report_Type: 'Insight Weekly', Date: getVal('reportDate'), Headline: getVal('f_Headline'),
     Head_Desc: formatTextForEmail(getVal('f_Head_Desc')), Img_Cover: getVal('f_Img_Cover'),
-    Point_Def: formatTextForEmail(getVal('f_Point_Def')), Body_Flow: formatTextForEmail(getVal('f_Body_Flow')),
+    Point_Def: formatTextForEmail(getVal('f_Point_Def')), Body_Flow: formatBodyFlowForEmail(getVal('f_Body_Flow')),
     Img_Sec3: getVal('f_Img_Sec3'), Source_List: formatTextForEmail(getVal('f_Source_List')),
     Section_Note: formatTextForEmail(getVal('f_Section_Note')), Categories: groupedCategories
   };

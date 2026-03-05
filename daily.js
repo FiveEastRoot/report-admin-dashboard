@@ -1051,15 +1051,51 @@ const mjmlTemplateDaily = `
 </mjml>
 `;
 
-function formatTextForEmail(text) { return text ? text.replace(/\n/g, '<br/>') : ''; }
+function formatTextForEmail(text) {
+  if (!text) return '';
+  const lines = text.split('\n');
+  let htmlContent = '';
+  let inUl = false;
+  lines.forEach(line => {
+    const tLine = line.trim();
+    if (tLine.startsWith('- ')) {
+      if (!inUl) { htmlContent += '<ul style="margin: 4px 0 12px 0; padding-left: 20px;">'; inUl = true; }
+      htmlContent += `<li style="margin-bottom: 4px;">${tLine.substring(2)}</li>`;
+    } else {
+      if (inUl) { htmlContent += '</ul>'; inUl = false; }
+      if (tLine) { htmlContent += `<div style="margin-bottom: 4px;">${tLine}</div>`; }
+      else { htmlContent += `<div style="height: 8px;"></div>`; }
+    }
+  });
+  if (inUl) { htmlContent += '</ul>'; }
+  return htmlContent;
+}
 
 function openEmailPreview() {
   if (typeof showToast === 'function') showToast('이메일 컴파일 중...', 'info');
 
+  const catNames = {
+    'CAT_01': 'AI·데이터 트렌드',
+    'CAT_02': 'AI·데이터 활용 사례',
+    'CAT_03': 'AI 인프라·플랫폼·도구',
+    'CAT_04': '정책, 제도, 거버넌스',
+    'CAT_05': '교육 인재 역량 개발',
+    'CAT_06': '연구 기술 동향 요약'
+  };
+
   const categoryMap = {};
   const groupedCategories = [];
-  (state.articles || []).forEach(a => {
-    const catName = a.Category_ID || '미분류';
+
+  // Sort articles by Category ID sequentially
+  const sortedArticles = [...(state.articles || [])].sort((a, b) => {
+    const aId = a.Category_ID || 'ZZZ';
+    const bId = b.Category_ID || 'ZZZ';
+    return aId.localeCompare(bId);
+  });
+
+  sortedArticles.forEach(a => {
+    const catId = a.Category_ID || '미분류';
+    const catName = catNames[catId] || catId;
     if (!categoryMap[catName]) {
       categoryMap[catName] = { Category_Name: catName, Articles: [] };
       groupedCategories.push(categoryMap[catName]);
