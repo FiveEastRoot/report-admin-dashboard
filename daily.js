@@ -982,7 +982,9 @@ async function openPreview() {
     <script src="\${dirPath}/viewer.js"></script>
     <script>
         const previewData = \${JSON.stringify(state.reportData)};
-        window.addEventListener('load', () => {
+        
+        // Use a polling mechanism to wait for viewer.js to finish loading
+        function tryRender() {
             if (typeof renderDailyReport === 'function') {
                 renderDailyReport(previewData);
                 document.getElementById('reportDate').textContent = previewData.Report_Date || '';
@@ -990,8 +992,13 @@ async function openPreview() {
                 // Hide header nav from preview if any
                 const navs = document.querySelectorAll('.header-nav');
                 navs.forEach(n => n.style.display = 'none');
+            } else {
+                setTimeout(tryRender, 50); // Try again in 50ms
             }
-        });
+        }
+        
+        // Start polling immediately
+        tryRender();
     </script>
 </body>
 </html>
