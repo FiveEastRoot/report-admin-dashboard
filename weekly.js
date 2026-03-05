@@ -895,147 +895,18 @@ async function openPreview() {
   try {
     showToast('誘몃━蹂닿린 ???먮룞 ???以?..', 'info', 2000);
     await saveData();
+    showToast('????꾨즺! 誘몃━蹂닿린瑜?濡쒕뱶?⑸땲??', 'success', 1500);
   } catch (e) {
     console.error('Preview auto-save failed:', e);
-    showToast('?먮룞 ??μ뿉 ?ㅽ뙣?덉뒿?덈떎. ?댁쟾 踰꾩쟾???쒖떆?????덉뒿?덈떎.', 'error', 3000);
+    showToast('?먮룞 ??μ뿉 ?ㅽ뙣?덉뒿?덈떎.', 'error', 3000);
   }
 
-  // Robust path resolution for Netlify (handles subdirectories, pretty URLs)
-  const basePath = window.location.href.split('?')[0];
-  const dirPath = basePath.substring(0, basePath.lastIndexOf('/'));
-
-
-  // Instead of fetching or waiting for viewer.js, we directly map the current editor state 
-  // into the HTML string. This guarantees 100% instant rendering with zero network requests.
-  const rData = state.reportData || {};
-  
-  // Helper to safely escape HTML to prevent XSS and tag breakage
-  const safeHtml = (str) => {
-    if (!str) return '';
-    return String(str)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  };
-
-  // Build Section Note (allows HTML)
-  const sectionNoteHtml = rData.Section_Note || '';
-
-  // Source list parsing
-  var sourceListHtml = '';
-  if (rData.Source_List) {
-    var srcLines = rData.Source_List.split('\n').filter(function(l) { return l.trim().length > 0; });
-    sourceListHtml = '<div class="source-list-links">';
-    srcLines.forEach(function(line) {
-      var parts = line.replace(/^- /, '').split(' | ');
-      if (parts.length >= 2) {
-        var sTitle = parts[0].trim();
-        var sUrl = parts.slice(1).join(' | ').trim();
-        sourceListHtml += '<a href="' + safeHtml(sUrl) + '" target="_blank" class="source-link-item minimal">'
-          + '<span class="source-icon">?뵕</span> '
-          + '<div class="source-info"><span class="source-title">' + safeHtml(sTitle) + '</span></div>'
-          + '</a>';
-      } else {
-        sourceListHtml += '<div class="source-link-item minimal" style="display:block; padding:8px 12px; color:#555;">' + safeHtml(line) + '</div>';
-      }
-    });
-    sourceListHtml += '</div>';
-  }
-
-  // Generator for simple sections
-  const getDisplay = (val) => val ? 'block' : 'none';
-
-  // Build the viewer HTML using string concatenation (NOT template literals)
-  const viewerHtml = '<!DOCTYPE html>'
-    + '<html lang="ko">'
-    + '<head>'
-    + '  <base href="' + dirPath + '/" />'
-    + '  <meta charset="UTF-8" />'
-    + '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />'
-    + '  <title>Preview</title>'
-    + '  <link rel="stylesheet" href="viewer.css" />'
-    + '  <style>body { background-color: #f8fafc; }</style>'
-    + '</head>'
-    + '<body>'
-    + '  <div class="viewer-container" style="display: block;">'
-    + '    <header class="viewer-header">'
-    + '      <div class="header-center-info">'
-    + '        <div class="report-type-title">Insight Weekly</div>'
-    + '        <div class="report-date-badge">' + safeHtml(rData.Week_Start || 'YYYY-MM-DD') + '</div>'
-    + '      </div>'
-    + '      <h1 class="report-title">' + safeHtml(rData.Headline || '') + '</h1>'
-    + '    </header>'
-    + '    <div class="report-cover" style="display: ' + getDisplay(rData.Img_Cover) + ';">'
-    + '      <img src="' + safeHtml(rData.Img_Cover) + '" alt="Cover Image" />'
-    + '    </div>'
-    + '    <div class="report-desc-wrap" style="display: ' + getDisplay(rData.Head_Desc) + '; margin-bottom: 48px; text-align: center;">'
-    + '      <p class="report-desc">' + safeHtml(rData.Head_Desc) + '</p>'
-    + '    </div>'
-    + '    <main>'
-    + '      <div class="section-image" style="display: ' + getDisplay(rData.Img_Sec1) + ';">'
-    + '        <img src="' + safeHtml(rData.Img_Sec1) + '" alt="Section Image" />'
-    + '      </div>'
-    + '      <section class="report-section" style="display: ' + getDisplay(rData.Context_Chg) + ';">'
-    + '        <div class="section-label">留λ씫 蹂??/div>'
-    + '        <div class="section-content highlight-box">' + safeHtml(rData.Context_Chg) + '</div>'
-    + '      </section>'
-    + '      <section class="report-section" style="display: ' + getDisplay(rData.Point_Def) + ';">'
-    + '        <div class="section-label">二쇱슂 ?ъ씤??/div>'
-    + '        <div class="section-content">' + safeHtml(rData.Point_Def) + '</div>'
-    + '      </section>'
-    + '      <div class="section-image" style="display: ' + getDisplay(rData.Img_Sec2) + ';">'
-    + '        <img src="' + safeHtml(rData.Img_Sec2) + '" alt="Section Image" />'
-    + '      </div>'
-    + '      <section class="report-section" style="display: ' + getDisplay(rData.Body_Flow) + ';">'
-    + '        <div class="section-content">' + safeHtml(rData.Body_Flow) + '</div>'
-    + '      </section>'
-    + '      <div class="section-image" style="display: ' + getDisplay(rData.Img_Body_Mid) + ';">'
-    + '        <img src="' + safeHtml(rData.Img_Body_Mid) + '" alt="Section Image" />'
-    + '      </div>'
-    + '      <section class="report-section" style="display: ' + getDisplay(rData.Body_Issues) + ';">'
-    + '        <div class="section-label">二쇱슂 ?댁뒋</div>'
-    + '        <div class="section-content">' + safeHtml(rData.Body_Issues) + '</div>'
-    + '      </section>'
-    + '      <section class="report-section" style="display: ' + getDisplay(rData.Body_3Key) + ';">'
-    + '        <div class="section-label">?듭떖 ?붿빟</div>'
-    + '        <div class="section-content">' + safeHtml(rData.Body_3Key) + '</div>'
-    + '      </section>'
-    + '      <div class="section-image" style="display: ' + getDisplay(rData.Img_Sec3) + ';">'
-    + '        <img src="' + safeHtml(rData.Img_Sec3) + '" alt="Section Image" />'
-    + '      </div>'
-    + '      <section class="report-section" style="display: ' + getDisplay(rData.App_Question) + ';">'
-    + '        <div class="section-label">?곸슜 吏덈Ц</div>'
-    + '        <div class="section-content">' + safeHtml(rData.App_Question) + '</div>'
-    + '      </section>'
-    + '      <section class="report-section" style="display: ' + getDisplay(rData.App_Predict) + ';">'
-    + '        <div class="section-label">?ν썑 ?꾨쭩</div>'
-    + '        <div class="section-content">' + safeHtml(rData.App_Predict) + '</div>'
-    + '      </section>'
-    + '      <section class="report-section" style="display: ' + getDisplay(rData.Source_List) + ';">'
-    + '        <div class="section-label">異쒖쿂</div>'
-    + '        <div class="section-content section-note">' + sourceListHtml + '</div>'
-    + '      </section>'
-    + '      <section class="report-section" style="display: ' + getDisplay(rData.Section_Note) + ';">'
-    + '        <div class="section-content section-note">' + sectionNoteHtml + '</div>'
-    + '      </section>'
-    + '    </main>'
-    + '  </div>'
-    + '</body>'
-    + '</html>';
-
-  // Use document.write on about:blank iframe to inherit parent's origin
-  // This allows <link> and <img> tags to resolve against the Netlify origin
+  // Simply load the actual viewer page in the iframe.
+  // The viewer page has its own CSS, JS, and fetches saved data from the API.
   iframe.removeAttribute('srcdoc');
-  iframe.src = 'about:blank';
-  setTimeout(function() {
-    var doc = iframe.contentDocument || iframe.contentWindow.document;
-    doc.open();
-    doc.write(viewerHtml);
-    doc.close();
-  }, 50);
+  iframe.src = './viewer_weekly.html?week=' + encodeURIComponent(currentVal);
 }
+
 
 function closePreview() {
   const overlay = document.getElementById('previewOverlay');

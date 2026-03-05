@@ -893,112 +893,16 @@ async function openPreview() {
   try {
     showToast('미리보기 전 자동 저장 중...', 'info', 2000);
     await saveData();
+    showToast('저장 완료! 미리보기를 로드합니다.', 'success', 1500);
   } catch (e) {
     console.error('Preview auto-save failed:', e);
-    showToast('자동 저장에 실패했습니다. 이전 버전이 표시될 수 있습니다.', 'error', 3000);
+    showToast('자동 저장에 실패했습니다.', 'error', 3000);
   }
 
-  // Robust path resolution for Netlify (handles subdirectories, pretty URLs)
-  const basePath = window.location.href.split('?')[0];
-  const dirPath = basePath.substring(0, basePath.lastIndexOf('/'));
-
-  // Instead of fetching or waiting for viewer.js, we directly map the current editor state 
-  // into the HTML string. This guarantees 100% instant rendering with zero network requests.
-  const rData = state.reportData || {};
-
-  // Helper to safely escape HTML to prevent XSS and tag breakage
-  const safeHtml = (str) => {
-    if (!str) return '';
-    return String(str)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  };
-
-  // Build Section Note (allows HTML)
-  const sectionNoteHtml = rData.Section_Note || '';
-
-  // Generator for simple sections
-  const getDisplay = (val) => val ? 'block' : 'none';
-
-  // Build the viewer HTML using string concatenation (NOT template literals)
-  // Use <base href> so the iframe can resolve external CSS/images from the correct origin
-  const viewerHtml = '<!DOCTYPE html>'
-    + '<html lang="ko">'
-    + '<head>'
-    + '  <base href="' + dirPath + '/" />'
-    + '  <meta charset="UTF-8" />'
-    + '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />'
-    + '  <title>Preview</title>'
-    + '  <link rel="stylesheet" href="viewer.css" />'
-    + '  <style>body { background-color: #f8fafc; }</style>'
-    + '</head>'
-    + '<body>'
-    + '  <div class="viewer-container" style="display: block;">'
-    + '    <header class="viewer-header">'
-    + '      <div class="header-center-info">'
-    + '        <div class="report-type-title">Insight Daily</div>'
-    + '        <div class="report-date-badge">' + safeHtml(rData.Report_Date || 'YYYY-MM-DD') + '</div>'
-    + '      </div>'
-    + '      <h1 class="report-title">' + safeHtml(rData.Headline || '') + '</h1>'
-    + '    </header>'
-    + '    <div class="report-cover" style="display: ' + getDisplay(rData.Img_Cover) + ';">'
-    + '      <img src="' + safeHtml(rData.Img_Cover) + '" alt="Cover Image" />'
-    + '    </div>'
-    + '    <div class="report-desc-wrap" style="display: ' + getDisplay(rData.Head_Desc) + '; margin-bottom: 48px; text-align: center;">'
-    + '      <p class="report-desc">' + safeHtml(rData.Head_Desc) + '</p>'
-    + '    </div>'
-    + '    <main>'
-    + '      <div class="section-image" style="display: ' + getDisplay(rData.Img_Sec1) + ';">'
-    + '        <img src="' + safeHtml(rData.Img_Sec1) + '" alt="Section 1" />'
-    + '      </div>'
-    + '      <section class="report-section" style="display: ' + getDisplay(rData.Why_Imp) + ';">'
-    + '        <div class="section-label">\uc65c \uc911\uc694\ud55c\uac00</div>'
-    + '        <div class="section-content highlight-box">' + safeHtml(rData.Why_Imp) + '</div>'
-    + '      </section>'
-    + '      <section class="report-section" style="display: ' + getDisplay(rData.Point_Now) + ';">'
-    + '        <div class="section-label">\uc9c0\uae08 \uc8fc\ubaa9\ud560 \ud3ec\uc778\ud2b8</div>'
-    + '        <div class="section-content">' + safeHtml(rData.Point_Now) + '</div>'
-    + '      </section>'
-    + '      <div class="section-image" style="display: ' + getDisplay(rData.Img_Sec2) + '; margin-top: 64px;">'
-    + '        <img src="' + safeHtml(rData.Img_Sec2) + '" alt="Section 2" />'
-    + '      </div>'
-    + '      <section class="report-section" style="display: ' + getDisplay(rData.App_Review) + ';">'
-    + '        <div class="section-label">\uc571 \ub9ac\ubdf0</div>'
-    + '        <div class="section-content">' + safeHtml(rData.App_Review) + '</div>'
-    + '      </section>'
-    + '      <section class="report-section" style="display: ' + getDisplay(rData.App_Prep) + ';">'
-    + '        <div class="section-label">\uc900\ube44 \uc0ac\ud56d</div>'
-    + '        <div class="section-content">' + safeHtml(rData.App_Prep) + '</div>'
-    + '      </section>'
-    + '      <section class="report-section" style="display: ' + getDisplay(rData.App_Point) + ';">'
-    + '        <div class="section-label">\ud575\uc2ec \uc801\uc6a9</div>'
-    + '        <div class="section-content">' + safeHtml(rData.App_Point) + '</div>'
-    + '      </section>'
-    + '      <div class="section-image" style="display: ' + getDisplay(rData.Img_Sec3) + ';">'
-    + '        <img src="' + safeHtml(rData.Img_Sec3) + '" alt="Section 3" />'
-    + '      </div>'
-    + '      <section class="report-section" style="display: ' + getDisplay(rData.Section_Note) + ';">'
-    + '        <div class="section-content section-note">' + sectionNoteHtml + '</div>'
-    + '      </section>'
-    + '    </main>'
-    + '  </div>'
-    + '</body>'
-    + '</html>';
-
-
-  // Use document.write on about:blank iframe to inherit parent's origin
-  // This allows <link> and <img> tags to resolve against the Netlify origin
+  // Simply load the actual viewer page in the iframe.
+  // The viewer page has its own CSS, JS, and fetches saved data from the API.
   iframe.removeAttribute('srcdoc');
-  iframe.src = 'about:blank';
-  setTimeout(function () {
-    var doc = iframe.contentDocument || iframe.contentWindow.document;
-    doc.open();
-    doc.write(viewerHtml);
-    doc.close();
-  }, 50);
+  iframe.src = './viewer_daily.html?date=' + encodeURIComponent(currentVal);
 }
 
 function closePreview() {
