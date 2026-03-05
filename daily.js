@@ -1079,7 +1079,7 @@ async function openEmailPreview() {
     document.body.style.overflow = 'hidden';
   } catch (err) {
     console.error('MJML Compile Error:', err);
-    showToast('\uC774\uBA54\uC77C \uC0DD\uC131 \uC911 \uC624\uB958\uAC00 \uBC1C\uC0DD\uD588\uC2B5\uB2C8\uB2E4.', 'error');
+    showToast('\uC774\uBA54\uC77C \uC0DD\uC131 \uC911 \uC624\uB958: ' + err.message, 'error');
   }
 }
 
