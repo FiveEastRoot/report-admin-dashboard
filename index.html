@@ -169,6 +169,31 @@
             font-size: 11px;
             border-radius: 99px;
         }
+
+        .dashboard-search {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 32px;
+        }
+
+        .search-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px 20px;
+            border-radius: 99px;
+            border: 1px solid rgba(0, 45, 84, 0.12);
+            font-family: inherit;
+            font-size: 15px;
+            color: #002D54;
+            box-shadow: 0 4px 12px rgba(0, 45, 84, 0.04);
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: #453FE8;
+            box-shadow: 0 4px 16px rgba(69, 63, 232, 0.15);
+        }
     </style>
 </head>
 
@@ -182,7 +207,7 @@
     </div>
 
     <div class="dashboard-container">
-        <header class="dashboard-header">
+        <header class="dashboard-header" style="margin-bottom: 32px;">
             <div class="dashboard-brand">
                 <div class="dashboard-logo">
                     <img src="https://pub-03167621cdbf4cc3bd490e069b232ca3.r2.dev/reports/KBRAIN%20CI.png" alt="K-BRAIN"
@@ -191,6 +216,11 @@
                 <h1>AI REPORT EDITOR</h1>
             </div>
         </header>
+
+        <div class="dashboard-search">
+            <input type="text" id="searchInput" class="search-input" placeholder="날짜로 리포트 검색 (예: 2024-05-12)"
+                autocomplete="off">
+        </div>
 
         <div class="boards-grid">
             <!-- Daily Reports -->

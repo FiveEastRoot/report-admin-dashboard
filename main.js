@@ -8,7 +8,10 @@ const DOM = {
     dailyList: document.getElementById('dailyList'),
     weeklyList: document.getElementById('weeklyList'),
     loadingOverlay: document.getElementById('loadingOverlay'),
+    searchInput: document.getElementById('searchInput'),
 };
+
+let dashboardData = { daily: [], weekly: [] };
 
 function showLoading() {
     DOM.loadingOverlay.classList.add('active');
@@ -42,14 +45,29 @@ async function fetchStats() {
         const json = await res.json();
         if (!json.success) throw new Error(json.error || 'Server Error');
 
-        renderList(DOM.dailyList, json.data.daily, 'daily.html', 'date');
-        renderList(DOM.weeklyList, json.data.weekly, 'weekly.html', 'week');
+        dashboardData.daily = json.data.daily || [];
+        dashboardData.weekly = json.data.weekly || [];
+        renderAll();
     } catch (err) {
         console.error(err);
         alert('데이터를 불러오는데 실패했습니다:\n' + err.message);
     } finally {
         hideLoading();
     }
+}
+
+function renderAll(filterQuery = '') {
+    const q = filterQuery.toLowerCase();
+    const filterFn = (item) => !q || (item.date && item.date.toLowerCase().includes(q));
+
+    renderList(DOM.dailyList, dashboardData.daily.filter(filterFn), 'daily.html', 'date');
+    renderList(DOM.weeklyList, dashboardData.weekly.filter(filterFn), 'weekly.html', 'week');
+}
+
+if (DOM.searchInput) {
+    DOM.searchInput.addEventListener('input', (e) => {
+        renderAll(e.target.value.trim());
+    });
 }
 
 function renderList(container, items, linkPage, paramName) {
@@ -84,7 +102,6 @@ function renderList(container, items, linkPage, paramName) {
         groupItems.forEach(item => {
             const dateStr = item.date;
             const headline = item.headline || '(헤드라인 없음)';
-            const statusLabel = groupTitle; // Display group title as status conceptually, but we match the badge to it.
 
             groupHtml += `
               <a href="${linkPage}?${paramName}=${encodeURIComponent(dateStr)}" class="report-item" style="margin-bottom: 8px;">
@@ -103,9 +120,9 @@ function renderList(container, items, linkPage, paramName) {
         return groupHtml;
     };
 
-    html += renderGroup('Published', groups.published, 'published');
-    html += renderGroup('Ready', groups.ready, 'ready');
-    html += renderGroup('Draft', groups.draft, 'draft');
+    html += renderGroup('Draft', groups.draft.slice(0, 5), 'draft');
+    html += renderGroup('Published', groups.published.slice(0, 5), 'published');
+    html += renderGroup('Ready', groups.ready.slice(0, 5), 'ready');
 
     if (!html) {
         html = `<div class="empty-state" style="padding:40px 0;text-align:center;color:#666;">해당 리포트가 없습니다.</div>`;
