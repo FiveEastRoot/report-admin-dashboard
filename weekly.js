@@ -989,13 +989,26 @@ const mjmlTemplateWeekly = `
     <mj-style inline="inline">.highlight-box { border-left: 4px solid #453FE8 !important; }</mj-style>
   </mj-head>
   <mj-body background-color="#FAFAFA" width="700px">
-    <mj-section padding="40px 20px 20px 20px"><mj-column>
+    <mj-section padding="40px 20px 0px 20px">
+      <mj-column>
         <mj-text align="center" font-size="22px" font-weight="800" color="#002D54" padding-bottom="8px">{{Report_Type}}</mj-text>
         <mj-button background-color="rgba(69, 63, 232, 0.08)" color="#453FE8" border-radius="99px" font-weight="700" font-size="13px" padding="0 0 20px 0" inner-padding="6px 16px">{{Date}}</mj-button>
-        <mj-text align="center" font-size="32px" font-weight="800" color="#002D54" line-height="1.3" padding-bottom="16px">{{Headline}}</mj-text>
-        {{#if Head_Desc}}<mj-text align="center" font-size="16px" color="#6B7280" line-height="1.6" padding="0 20px">{{{Head_Desc}}}</mj-text>{{/if}}
-    </mj-column></mj-section>
-    {{#if Img_Cover}}<mj-section padding="20px 20px 32px 20px"><mj-column><mj-image src="{{Img_Cover}}" border-radius="16px" /></mj-column></mj-section>{{/if}}
+        <mj-text align="center" font-size="32px" font-weight="800" color="#002D54" line-height="1.3" padding-bottom="24px">{{Headline}}</mj-text>
+      </mj-column>
+    </mj-section>
+    
+    {{#if Img_Cover}}
+    <mj-section padding="0 20px 24px 20px">
+      <mj-column><mj-image src="{{Img_Cover}}" border-radius="16px" /></mj-column>
+    </mj-section>
+    {{/if}}
+    
+    {{#if Head_Desc}}
+    <mj-section padding="0 20px 32px 20px">
+      <mj-column><mj-text align="center" font-size="16px" color="#6B7280" line-height="1.6">{{{Head_Desc}}}</mj-text></mj-column>
+    </mj-section>
+    {{/if}}
+
     {{#if Point_Def}}
     <mj-section padding="0 20px 12px 20px"><mj-column><mj-text font-size="18px" font-weight="800" color="#44A4FF" padding-bottom="12px"><span style="color:#39E6FD; margin-right:6px;">●</span> 핵심 정의</mj-text></mj-column></mj-section>
     <mj-section padding="0 20px 32px 20px"><mj-column background-color="#FFFFFF" border="1px solid #E5E7EB" border-radius="12px" css-class="highlight-box"><mj-text font-size="16px" color="#1F2937" padding="18px">{{{Point_Def}}}</mj-text></mj-column></mj-section>
@@ -1009,12 +1022,13 @@ const mjmlTemplateWeekly = `
     <mj-section padding="0 20px 12px 20px"><mj-column><mj-text font-size="18px" font-weight="800" color="#44A4FF" padding-bottom="12px"><span style="color:#39E6FD; margin-right:6px;">●</span> 출처</mj-text></mj-column></mj-section>
     <mj-section padding="0 20px 32px 20px"><mj-column background-color="#FFFFFF" border="1px solid #E5E7EB" border-radius="12px"><mj-text font-size="16px" color="#1F2937" padding="18px">{{{Source_List}}}</mj-text></mj-column></mj-section>
     {{/if}}
-    {{#if Section_Note}}<mj-section padding="0 20px 48px 20px"><mj-column background-color="#F3F4F6" border-radius="8px"><mj-text font-size="14px" color="#6B7280" padding="16px">{{{Section_Note}}}</mj-text></mj-column></mj-section>{{/if}}
-    <mj-section padding="24px 20px 48px 20px"><mj-column background-color="#453FE8" border-radius="16px" padding="24px">
-        <mj-text color="#FFFFFF" font-size="20px" font-weight="800" padding-bottom="8px">K-BRAIN 플래티넘 멤버십 특별 혜택</mj-text>
-        <mj-text color="#FFFFFF" font-size="15px" line-height="1.5" padding-bottom="16px" opacity="0.9">지금 가입하고 최신 산업 동향과 프리미엄 AI 리포트를 데이터 제한 없이 무제한으로 열람하세요.</mj-text>
-        <mj-button href="#" background-color="#FFFFFF" color="#453FE8" font-weight="700" border-radius="8px" align="left" padding="0">자세히 보기</mj-button>
-    </mj-column></mj-section>
+    {{#if Section_Note}}
+    <mj-section padding="0 20px 48px 20px">
+      <mj-column background-color="#F3F4F6" border-radius="8px">
+        <mj-text font-size="14px" color="#6B7280" padding="16px">{{{Section_Note}}}</mj-text>
+      </mj-column>
+    </mj-section>
+    {{/if}}
   </mj-body>
 </mjml>
 `;
