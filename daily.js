@@ -975,16 +975,14 @@ init();
 /* =========================================================================
    EMAIL PREVIEW & EXPORT LOGIC (DAILY)
    ========================================================================= */
-
 const mjmlTemplateDaily = `
 <mjml>
   <mj-head>
+    <mj-raw><meta name="color-scheme" content="light dark"><meta name="supported-color-schemes" content="light dark"></mj-raw>
+    <mj-style>:root { color-scheme: light dark; supported-color-schemes: light dark; }</mj-style>
     <mj-attributes>
       <mj-all font-family="-apple-system, BlinkMacSystemFont, 'Pretendard', sans-serif" color="#1F2937" />
-      <mj-section padding="0" />
-      <mj-column padding="0" />
-      <mj-text padding="0" line-height="1.6" />
-      <mj-image padding="0" />
+      <mj-section padding="0" /><mj-column padding="0" /><mj-text padding="0" line-height="1.6" /><mj-image padding="0" />
     </mj-attributes>
     <mj-style inline="inline">
       .highlight-box { border-left: 4px solid #453FE8 !important; }
@@ -992,128 +990,124 @@ const mjmlTemplateDaily = `
     </mj-style>
   </mj-head>
   <mj-body background-color="#FAFAFA" width="700px">
-    <mj-section padding="40px 20px 20px 20px">
-      <mj-column>
-        <mj-text align="center" font-size="22px" font-weight="800" color="#002D54" padding-bottom="8px">Insight Daily</mj-text>
+    <mj-section padding="40px 20px 20px 20px"><mj-column>
+        <mj-text align="center" font-size="22px" font-weight="800" color="#002D54" padding-bottom="8px">{{Report_Type}}</mj-text>
         <mj-button background-color="rgba(69, 63, 232, 0.08)" color="#453FE8" border-radius="99px" font-weight="700" font-size="13px" padding="0 0 20px 0" inner-padding="6px 16px">{{Date}}</mj-button>
         <mj-text align="center" font-size="32px" font-weight="800" color="#002D54" line-height="1.3" padding-bottom="16px">{{Headline}}</mj-text>
         {{#if Head_Desc}}<mj-text align="center" font-size="16px" color="#6B7280" line-height="1.6" padding="0 20px">{{Head_Desc}}</mj-text>{{/if}}
-      </mj-column>
-    </mj-section>
-
-    {{#if Img_Cover}}<mj-section padding="20px 20px 32px 20px"><mj-column><mj-image src="{{Img_Cover}}" alt="\uCEE4\uBC84" border-radius="16px" /></mj-column></mj-section>{{/if}}
+    </mj-column></mj-section>
+    {{#if Img_Cover}}<mj-section padding="20px 20px 32px 20px"><mj-column><mj-image src="{{Img_Cover}}" alt="Cover" border-radius="16px" /></mj-column></mj-section>{{/if}}
     {{#if Img_Sec1}}<mj-section padding="0 20px 24px 20px"><mj-column><mj-image src="{{Img_Sec1}}" border-radius="12px" /></mj-column></mj-section>{{/if}}
-
     {{#if Why_Imp}}
-    <mj-section padding="0 20px 12px 20px"><mj-column><mj-text font-size="18px" font-weight="800" color="#44A4FF" padding-bottom="12px"><span style="color:#39E6FD; margin-right:6px;">\u25CF</span> \uC65C \uC911\uC694\uD55C\uAC00</mj-text></mj-column></mj-section>
+    <mj-section padding="0 20px 12px 20px"><mj-column><mj-text font-size="18px" font-weight="800" color="#44A4FF" padding-bottom="12px"><span style="color:#39E6FD; margin-right:6px;">●</span> 왜 중요한가</mj-text></mj-column></mj-section>
     <mj-section padding="0 20px 32px 20px"><mj-column background-color="#FFFFFF" border="1px solid #E5E7EB" border-radius="12px" css-class="highlight-box"><mj-text font-size="16px" color="#1F2937" padding="18px">{{{Why_Imp}}}</mj-text></mj-column></mj-section>
     {{/if}}
-
     {{#if Point_Now}}
-    <mj-section padding="0 20px 12px 20px"><mj-column><mj-text font-size="18px" font-weight="800" color="#44A4FF" padding-bottom="12px"><span style="color:#39E6FD; margin-right:6px;">\u25CF</span> \uC9C0\uAE08 \uC8FC\uBAA9\uD560 \uD3EC\uC778\uD2B8</mj-text></mj-column></mj-section>
+    <mj-section padding="0 20px 12px 20px"><mj-column><mj-text font-size="18px" font-weight="800" color="#44A4FF" padding-bottom="12px"><span style="color:#39E6FD; margin-right:6px;">●</span> 지금 주목할 포인트</mj-text></mj-column></mj-section>
     <mj-section padding="0 20px 48px 20px"><mj-column background-color="#FFFFFF" border="1px solid #E5E7EB" border-radius="12px"><mj-text font-size="16px" color="#1F2937" padding="18px">{{{Point_Now}}}</mj-text></mj-column></mj-section>
     {{/if}}
+    {{#if Img_Sec2}}<mj-section padding="0 20px 24px 20px"><mj-column><mj-image src="{{Img_Sec2}}" border-radius="12px" /></mj-column></mj-section>{{/if}}
+    {{#if App_Review}}
+    <mj-section padding="0 20px 12px 20px"><mj-column><mj-text font-size="18px" font-weight="800" color="#44A4FF" padding-bottom="12px"><span style="color:#39E6FD; margin-right:6px;">●</span> 앱 리뷰</mj-text></mj-column></mj-section>
+    <mj-section padding="0 20px 32px 20px"><mj-column background-color="#FFFFFF" border="1px solid #E5E7EB" border-radius="12px"><mj-text font-size="16px" color="#1F2937" padding="18px">{{{App_Review}}}</mj-text></mj-column></mj-section>
+    {{/if}}
+    {{#if App_Prep}}
+    <mj-section padding="0 20px 12px 20px"><mj-column><mj-text font-size="18px" font-weight="800" color="#44A4FF" padding-bottom="12px"><span style="color:#39E6FD; margin-right:6px;">●</span> 준비 사항</mj-text></mj-column></mj-section>
+    <mj-section padding="0 20px 32px 20px"><mj-column background-color="#FFFFFF" border="1px solid #E5E7EB" border-radius="12px"><mj-text font-size="16px" color="#1F2937" padding="18px">{{{App_Prep}}}</mj-text></mj-column></mj-section>
+    {{/if}}
+    {{#if App_Point}}
+    <mj-section padding="0 20px 12px 20px"><mj-column><mj-text font-size="18px" font-weight="800" color="#44A4FF" padding-bottom="12px"><span style="color:#39E6FD; margin-right:6px;">●</span> 핵심 적용</mj-text></mj-column></mj-section>
+    <mj-section padding="0 20px 32px 20px"><mj-column background-color="#FFFFFF" border="1px solid #E5E7EB" border-radius="12px" css-class="highlight-box"><mj-text font-size="16px" color="#1F2937" padding="18px">{{{App_Point}}}</mj-text></mj-column></mj-section>
+    {{/if}}
+    {{#if Img_Sec3}}<mj-section padding="0 20px 24px 20px"><mj-column><mj-image src="{{Img_Sec3}}" border-radius="12px" /></mj-column></mj-section>{{/if}}
+    {{#if Section_Note}}<mj-section padding="0 20px 48px 20px"><mj-column background-color="#F3F4F6" border-radius="8px"><mj-text font-size="14px" color="#6B7280" padding="16px">{{{Section_Note}}}</mj-text></mj-column></mj-section>{{/if}}
 
-    {{#if Articles.length}}
-    <mj-section padding="0 20px 12px 20px"><mj-column><mj-text font-size="18px" font-weight="800" color="#002D54" padding-bottom="8px" border-bottom="2px solid #002D54">\uAD00\uB828 \uC544\uD2F0\uD074</mj-text></mj-column></mj-section>
-    {{#each Articles}}
-    <mj-section padding="10px 20px 24px 20px">
-      <mj-column background-color="#FFFFFF" border="1px solid #E5E7EB" border-radius="12px" padding="16px">
-        {{#if Item_Thumb}}<mj-image src="{{Item_Thumb}}" alt="\uC378\uB124\uC77C" border-radius="8px" padding-bottom="16px" />{{/if}}
-        <mj-text font-size="18px" font-weight="800" line-height="1.4" padding-bottom="12px">{{Title_Org}}</mj-text>
-        <mj-text background-color="#F8FAFC" font-size="14px" color="#4B5563" padding="12px" border-radius="6px">
-          <strong style="color: #453FE8;">\uB0B4\uC6A9:</strong> {{Core_Content}}<br/><br/>
-          <strong style="color: #453FE8;">\uC758\uC758:</strong> {{Key_Point}}
-        </mj-text>
-        <mj-divider border-width="1px" border-style="dashed" border-color="#E5E7EB" padding="16px 0" />
-        <mj-button href="{{Link}}" background-color="#FFFFFF" color="#453FE8" border="1px solid #453FE8" border-radius="6px" align="right" padding="0" inner-padding="8px 16px" font-weight="700">\uC6D0\uBB38 \uC774\uB3D9 \u2192</mj-button>
-      </mj-column>
-    </mj-section>
-    {{/each}}
+    {{#if Categories.length}}
+      {{#each Categories}}
+        <mj-section padding="12px 20px 12px 20px"><mj-column><mj-text font-size="18px" font-weight="800" color="#002D54" padding-bottom="8px" border-bottom="2px solid #002D54">{{Category_Name}}</mj-text></mj-column></mj-section>
+        {{#each Articles}}
+        <mj-section padding="10px 20px 16px 20px">
+          <mj-column background-color="#FFFFFF" border="1px solid #E5E7EB" border-radius="12px" padding="16px">
+            <mj-text font-size="16px" font-weight="800" line-height="1.4" padding-bottom="12px">{{Title_Org}}</mj-text>
+            <mj-text background-color="#F8FAFC" font-size="14px" color="#4B5563" padding="12px" border-radius="6px">
+              <strong style="color: #453FE8;">내용:</strong> {{Core_Content}}<br/><br/>
+              <strong style="color: #453FE8;">의의:</strong> {{Key_Point}}
+            </mj-text>
+            <mj-divider border-width="1px" border-style="dashed" border-color="#E5E7EB" padding="16px 0" />
+            <mj-button href="{{Link}}" background-color="#FFFFFF" color="#453FE8" border="1px solid #453FE8" border-radius="6px" align="right" padding="0" inner-padding="8px 16px" font-size="12px" font-weight="700">원문 이동 →</mj-button>
+          </mj-column>
+        </mj-section>
+        {{/each}}
+        <mj-section padding="0 0 24px 0"><mj-column><mj-text></mj-text></mj-column></mj-section>
+      {{/each}}
     {{/if}}
 
-    <mj-section padding="24px 20px 48px 20px">
-      <mj-column background-color="#453FE8" border-radius="16px" padding="24px">
-        <mj-text color="#FFFFFF" font-size="20px" font-weight="800" padding-bottom="8px">K-BRAIN \uD50C\uB798\uD2F0\uB118 \uBA64\uBC84\uC2ED \uD2B9\uBCC4 \uD61C\uD0DD</mj-text>
-        <mj-text color="#FFFFFF" font-size="15px" line-height="1.5" padding-bottom="16px" opacity="0.9">\uC9C0\uAE08 \uAC00\uC785\uD558\uACE0 \uCD5C\uC2E0 \uC0B0\uC5C5 \uB3D9\uD5A5\uACFC \uD504\uB9AC\uBBF8\uC5C4 AI \uB9AC\uD3EC\uD2B8\uB97C \uB370\uC774\uD130 \uC81C\uD55C \uC5C6\uC774 \uBB34\uC81C\uD55C\uC73C\uB85C \uC5F4\uB78C\uD558\uC138\uC694.</mj-text>
-        <mj-button href="#" background-color="#FFFFFF" color="#453FE8" font-weight="700" border-radius="8px" align="left" padding="0">\uC790\uC138\uD788 \uBCF4\uAE30</mj-button>
-      </mj-column>
-    </mj-section>
+    <mj-section padding="24px 20px 48px 20px"><mj-column background-color="#453FE8" border-radius="16px" padding="24px">
+        <mj-text color="#FFFFFF" font-size="20px" font-weight="800" padding-bottom="8px">K-BRAIN 플래티넘 멤버십 특별 혜택</mj-text>
+        <mj-text color="#FFFFFF" font-size="15px" line-height="1.5" padding-bottom="16px" opacity="0.9">지금 가입하고 최신 산업 동향과 프리미엄 AI 리포트를 데이터 제한 없이 무제한으로 열람하세요.</mj-text>
+        <mj-button href="#" background-color="#FFFFFF" color="#453FE8" font-weight="700" border-radius="8px" align="left" padding="0">자세히 보기</mj-button>
+    </mj-column></mj-section>
   </mj-body>
 </mjml>
 `;
 
-function formatTextForEmail(text) {
-  if (!text) return '';
-  return text.replace(/\n/g, '<br/>');
-}
+function formatTextForEmail(text) { return text ? text.replace(/\n/g, '<br/>') : ''; }
 
-async function openEmailPreview() {
-  showToast('\uC774\uBA54\uC77C \uCEF4\uD30C\uC77C \uC911...', 'info');
+function openEmailPreview() {
+  if (typeof showToast === 'function') showToast('이메일 컴파일 중...', 'info');
 
-  const reportData = {
-    Date: $('reportDate').value,
-    Headline: $('f_Headline') ? $('f_Headline').value : '',
-    Head_Desc: formatTextForEmail($('f_Head_Desc') ? $('f_Head_Desc').value : ''),
-    Img_Cover: $('f_Img_Cover') ? $('f_Img_Cover').value : '',
-    Img_Sec1: $('f_Img_Sec1') ? $('f_Img_Sec1').value : '',
-    Why_Imp: formatTextForEmail($('f_Why_Imp') ? $('f_Why_Imp').value : ''),
-    Point_Now: formatTextForEmail($('f_Point_Now') ? $('f_Point_Now').value : ''),
-    Articles: (state.articles || []).map(a => ({
+  const categoryMap = {};
+  const groupedCategories = [];
+  (state.articles || []).forEach(a => {
+    const catName = a.Category_ID || '미분류';
+    if (!categoryMap[catName]) {
+      categoryMap[catName] = { Category_Name: catName, Articles: [] };
+      groupedCategories.push(categoryMap[catName]);
+    }
+    const editData = (state.activeEdits && state.activeEdits[a.UUID]) ? state.activeEdits[a.UUID] : {};
+    categoryMap[catName].Articles.push({
       Title_Org: a.Title_Org || a.Subtitle || '',
-      Core_Content: state.activeEdits[a.UUID] ? state.activeEdits[a.UUID].Core_Content || a.Core_Content || '' : a.Core_Content || '',
-      Key_Point: state.activeEdits[a.UUID] ? state.activeEdits[a.UUID].Key_Point || a.Key_Point || '' : a.Key_Point || '',
-      Item_Thumb: state.activeEdits[a.UUID] ? state.activeEdits[a.UUID].Item_Thumb || a.Item_Thumb || '' : a.Item_Thumb || '',
+      Core_Content: editData.Core_Content || a.Core_Content || '',
+      Key_Point: editData.Key_Point || a.Key_Point || '',
       Link: a.Link || '#'
-    }))
+    });
+  });
+
+  const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
+  const reportData = {
+    Report_Type: 'Insight Daily', Date: getVal('reportDate'), Headline: getVal('f_Headline'),
+    Head_Desc: formatTextForEmail(getVal('f_Head_Desc')), Img_Cover: getVal('f_Img_Cover'),
+    Img_Sec1: getVal('f_Img_Sec1'), Why_Imp: formatTextForEmail(getVal('f_Why_Imp')),
+    Point_Now: formatTextForEmail(getVal('f_Point_Now')), Img_Sec2: getVal('f_Img_Sec2'),
+    App_Review: formatTextForEmail(getVal('f_App_Review')), App_Prep: formatTextForEmail(getVal('f_App_Prep')),
+    App_Point: formatTextForEmail(getVal('f_App_Point')), Img_Sec3: getVal('f_Img_Sec3'),
+    Section_Note: formatTextForEmail(getVal('f_Section_Note')), Categories: groupedCategories
   };
 
   try {
     const template = Handlebars.compile(mjmlTemplateDaily);
-    const mjmlString = template(reportData);
-
-    // Resolve MJML compile function safely depending on CDN exporting strategy
-    const compileFactory = (typeof mjml2html === 'function') ? mjml2html :
-      (typeof mjml === 'function') ? mjml :
-        (typeof mjml !== 'undefined' && typeof mjml.mjml2html === 'function') ? mjml.mjml2html : null;
-
-    if (!compileFactory) throw new Error("MJML compiler function not found.");
-
-    const result = compileFactory(mjmlString, { validationLevel: 'soft' });
-
-    $('emailHtmlOutput').value = result.html;
-    $('emailPreviewIframe').srcdoc = result.html;
-    $('emailPreviewModal').classList.add('open');
+    const compileFactory = (typeof mjml2html === 'function') ? mjml2html : (typeof mjml === 'function') ? mjml : (typeof mjml !== 'undefined' && typeof mjml.mjml2html === 'function') ? mjml.mjml2html : null;
+    if (!compileFactory) throw new Error("MJML compiler not found.");
+    const result = compileFactory(template(reportData), { validationLevel: 'soft' });
+    document.getElementById('emailHtmlOutput').value = result.html;
+    document.getElementById('emailPreviewIframe').srcdoc = result.html;
+    document.getElementById('emailPreviewModal').classList.add('open');
     document.body.style.overflow = 'hidden';
   } catch (err) {
-    console.error('MJML Compile Error:', err);
-    showToast('\uC774\uBA54\uC77C \uC0DD\uC131 \uC911 \uC624\uB958: ' + err.message, 'error');
+    console.error(err);
+    if (typeof showToast === 'function') showToast('오류: ' + err.message, 'error');
   }
 }
 
-function closeEmailPreview() {
-  const modal = $('emailPreviewModal');
-  if (modal) modal.classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-function copyEmailHtml() {
-  const el = $('emailHtmlOutput');
-  el.select();
-  document.execCommand('copy');
-  showToast('HTML \uCF54\uB4DC\uAC00 \uBCF5\uC0AC\uB418\uC5C8\uC2B5\uB2C8\uB2E4.', 'success');
-}
-
+function closeEmailPreview() { document.getElementById('emailPreviewModal').classList.remove('open'); document.body.style.overflow = ''; }
+function copyEmailHtml() { const el = document.getElementById('emailHtmlOutput'); el.select(); document.execCommand('copy'); if (typeof showToast === 'function') showToast("복사 완료", "success"); }
 function downloadEmailHtml() {
-  const htmlContent = $('emailHtmlOutput').value;
-  const dateStr = $('reportDate').value.replace(/-/g, '');
-  const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
+  const htmlContent = document.getElementById('emailHtmlOutput').value;
+  const dateStr = document.getElementById('reportDate').value.replace(/-/g, '');
   const a = document.createElement('a');
-  a.href = url;
-  a.download = 'Insight_Daily_' + dateStr + '.html';
+  a.href = URL.createObjectURL(new Blob([htmlContent], { type: 'text/html;charset=utf-8' }));
+  a.download = `Insight_Daily_${dateStr}.html`;
   a.click();
-  URL.revokeObjectURL(url);
 }
 
 // Event listeners for email preview
