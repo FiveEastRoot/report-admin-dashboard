@@ -194,6 +194,17 @@
             border-color: #453FE8;
             box-shadow: 0 4px 16px rgba(69, 63, 232, 0.15);
         }
+
+        /* Customizing the date picker icon */
+        ::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            opacity: 0.6;
+            transition: 0.2s;
+        }
+
+        ::-webkit-calendar-picker-indicator:hover {
+            opacity: 1;
+        }
     </style>
 </head>
 
@@ -218,8 +229,7 @@
         </header>
 
         <div class="dashboard-search">
-            <input type="text" id="searchInput" class="search-input" placeholder="날짜로 리포트 검색 (예: 2024-05-12)"
-                autocomplete="off">
+            <input type="date" id="searchInput" class="search-input" title="보고서 날짜 선택" autocomplete="off">
         </div>
 
         <div class="boards-grid">
