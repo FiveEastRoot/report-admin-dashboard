@@ -904,6 +904,15 @@ async function openPreview() {
   const basePath = window.location.href.split('?')[0];
   const dirPath = basePath.substring(0, basePath.lastIndexOf('/'));
 
+  // Fetch viewer.css and inline it (srcdoc iframes cannot load external link tags)
+  let cssText = '';
+  try {
+    const cssResp = await fetch(dirPath + '/viewer.css');
+    if (cssResp.ok) cssText = await cssResp.text();
+  } catch (e) {
+    console.warn('Could not fetch viewer.css for preview:', e);
+  }
+
   // Instead of fetching or waiting for viewer.js, we directly map the current editor state 
   // into the HTML string. This guarantees 100% instant rendering with zero network requests.
   const rData = state.reportData || {};
@@ -953,7 +962,7 @@ async function openPreview() {
     + '  <meta charset="UTF-8" />'
     + '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />'
     + '  <title>Preview</title>'
-    + '  <link rel="stylesheet" href="' + dirPath + '/viewer.css" />'
+    + '  <style>' + cssText + '</style>'
     + '  <style>body { background-color: #f8fafc; }</style>'
     + '</head>'
     + '<body>'
