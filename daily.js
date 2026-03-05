@@ -902,8 +902,103 @@ async function openPreview() {
   const basePath = window.location.href.split('?')[0];
   const dirPath = basePath.substring(0, basePath.lastIndexOf('/'));
 
-  iframe.removeAttribute('srcdoc');
-  iframe.src = `${dirPath}/viewer_daily.html?date=${currentVal}`;
+  // Generate the exact viewer HTML and inject the current data
+  const viewerHtml = `
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Preview</title>
+    <link rel="stylesheet" href="\${dirPath}/viewer.css" />
+    <style>body { background-color: #f8fafc; }</style>
+</head>
+<body>
+    <div class="viewer-container" style="display: block;" id="viewerContent">
+        <header class="viewer-header">
+            <div class="header-center-info">
+                <div class="report-type-title">Insight Daily</div>
+                <div class="report-date-badge" id="reportDate">YYYY-MM-DD</div>
+            </div>
+            <h1 class="report-title" id="val_Headline">Headline Title Goes Here</h1>
+        </header>
+
+        <div class="report-cover" id="wrap_Img_Cover" style="display: none;">
+            <img id="val_Img_Cover" src="" alt="Cover Image" />
+        </div>
+
+        <div class="report-desc-wrap" id="wrap_Head_Desc" style="display: none; margin-bottom: 48px; text-align: center;">
+            <p class="report-desc" id="val_Head_Desc"></p>
+        </div>
+
+        <main>
+            <div class="section-image" id="wrap_Img_Sec1" style="display: none;">
+                <img id="val_Img_Sec1" src="" alt="Section 1" />
+            </div>
+
+            <section class="report-section" id="sec_Why_Imp" style="display: none;">
+                <div class="section-label">왜 중요한가</div>
+                <div class="section-content highlight-box" id="val_Why_Imp"></div>
+            </section>
+
+            <section class="report-section" id="sec_Point_Now" style="display: none;">
+                <div class="section-label">지금 주목할 포인트</div>
+                <div class="section-content" id="val_Point_Now"></div>
+            </section>
+
+            <section class="curation-area" id="sec_Articles" style="display: none;">
+                <div class="curation-list" id="val_Articles"></div>
+            </section>
+
+            <div class="section-image" id="wrap_Img_Sec2" style="display: none; margin-top: 64px;">
+                <img id="val_Img_Sec2" src="" alt="Section 2" />
+            </div>
+
+            <section class="report-section" id="sec_App_Review" style="display: none;">
+                <div class="section-label">앱 리뷰</div>
+                <div class="section-content" id="val_App_Review"></div>
+            </section>
+
+            <section class="report-section" id="sec_App_Prep" style="display: none;">
+                <div class="section-label">준비 사항</div>
+                <div class="section-content" id="val_App_Prep"></div>
+            </section>
+
+            <section class="report-section" id="sec_App_Point" style="display: none;">
+                <div class="section-label">핵심 적용</div>
+                <div class="section-content" id="val_App_Point"></div>
+            </section>
+
+            <div class="section-image" id="wrap_Img_Sec3" style="display: none;">
+                <img id="val_Img_Sec3" src="" alt="Section 3" />
+            </div>
+
+            <section class="report-section" id="sec_Section_Note" style="display: none;">
+                <div class="section-content section-note" id="val_Section_Note"></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="\${dirPath}/viewer.js"></script>
+    <script>
+        const previewData = \${JSON.stringify(state.reportData)};
+        window.addEventListener('load', () => {
+            if (typeof renderDailyReport === 'function') {
+                renderDailyReport(previewData);
+                document.getElementById('reportDate').textContent = previewData.Report_Date || '';
+                
+                // Hide header nav from preview if any
+                const navs = document.querySelectorAll('.header-nav');
+                navs.forEach(n => n.style.display = 'none');
+            }
+        });
+    </script>
+</body>
+</html>
+  `;
+
+  iframe.removeAttribute('src');
+  iframe.srcdoc = viewerHtml;
 }
 
 function closePreview() {

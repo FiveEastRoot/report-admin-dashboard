@@ -904,8 +904,121 @@ async function openPreview() {
   const basePath = window.location.href.split('?')[0];
   const dirPath = basePath.substring(0, basePath.lastIndexOf('/'));
 
-  iframe.removeAttribute('srcdoc');
-  iframe.src = `${dirPath}/viewer_weekly.html?week=${currentVal}`;
+  // Generate the exact viewer HTML and inject the current data
+  const viewerHtml = `
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Preview</title>
+    <link rel="stylesheet" href="\${dirPath}/viewer.css" />
+    <style>body { background-color: #f8fafc; }</style>
+</head>
+<body>
+    <div class="viewer-container" style="display: block;" id="viewerContent">
+        <header class="viewer-header">
+            <div class="header-center-info">
+                <div class="report-type-title">Insight Weekly</div>
+                <div class="report-date-badge" id="reportDate">YYYY-MM-DD</div>
+            </div>
+            <h1 class="report-title" id="val_Headline">Headline Title Goes Here</h1>
+        </header>
+
+        <div class="report-cover" id="wrap_Img_Cover" style="display: none;">
+            <img id="val_Img_Cover" src="" alt="Cover Image" />
+        </div>
+
+        <div class="report-desc-wrap" id="wrap_Head_Desc" style="display: none; margin-bottom: 48px; text-align: center;">
+            <p class="report-desc" id="val_Head_Desc"></p>
+        </div>
+
+        <main>
+            <div class="section-image" id="wrap_Img_Sec1" style="display: none;">
+                <img id="val_Img_Sec1" src="" alt="Section Image" />
+            </div>
+
+            <section class="report-section" id="sec_Context_Chg" style="display: none;">
+                <div class="section-label">맥락 변화</div>
+                <div class="section-content highlight-box" id="val_Context_Chg"></div>
+            </section>
+
+            <section class="report-section" id="sec_Point_Def" style="display: none;">
+                <div class="section-label">주요 포인트</div>
+                <div class="section-content" id="val_Point_Def"></div>
+            </section>
+
+            <section class="curation-area" id="sec_Articles" style="display: none;">
+                <div class="curation-list" id="val_Articles"></div>
+            </section>
+
+            <div class="section-image" id="wrap_Img_Sec2" style="display: none;">
+                <img id="val_Img_Sec2" src="" alt="Section Image" />
+            </div>
+
+            <section class="report-section" id="sec_Body_Flow" style="display: none;">
+                <div class="section-content" id="val_Body_Flow"></div>
+            </section>
+
+            <div class="section-image" id="wrap_Img_Body_Mid" style="display: none;">
+                <img id="val_Img_Body_Mid" src="" alt="Section Image" />
+            </div>
+
+            <section class="report-section" id="sec_Body_Issues" style="display: none;">
+                <div class="section-label">주요 이슈</div>
+                <div class="section-content" id="val_Body_Issues"></div>
+            </section>
+
+            <section class="report-section" id="sec_Body_3Key" style="display: none;">
+                <div class="section-label">핵심 요약</div>
+                <div class="section-content" id="val_Body_3Key"></div>
+            </section>
+
+            <div class="section-image" id="wrap_Img_Sec3" style="display: none;">
+                <img id="val_Img_Sec3" src="" alt="Section Image" />
+            </div>
+
+            <section class="report-section" id="sec_App_Question" style="display: none;">
+                <div class="section-label">적용 질문</div>
+                <div class="section-content" id="val_App_Question"></div>
+            </section>
+
+            <section class="report-section" id="sec_App_Predict" style="display: none;">
+                <div class="section-label">향후 전망</div>
+                <div class="section-content" id="val_App_Predict"></div>
+            </section>
+
+            <section class="report-section" id="sec_Source_List" style="display: none;">
+                <div class="section-label">출처</div>
+                <div class="section-content section-note" id="val_Source_List"></div>
+            </section>
+
+            <section class="report-section" id="sec_Section_Note" style="display: none;">
+                <div class="section-content section-note" id="val_Section_Note"></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="\${dirPath}/viewer.js"></script>
+    <script>
+        const previewData = \${JSON.stringify(state.reportData)};
+        window.addEventListener('load', () => {
+            if (typeof renderWeeklyReport === 'function') {
+                renderWeeklyReport(previewData);
+                document.getElementById('reportDate').textContent = previewData.Report_Date || '';
+                
+                // Hide header nav from preview if any
+                const navs = document.querySelectorAll('.header-nav');
+                navs.forEach(n => n.style.display = 'none');
+            }
+        });
+    </script>
+</body>
+</html>
+  `;
+
+  iframe.removeAttribute('src');
+  iframe.srcdoc = viewerHtml;
 }
 
 function closePreview() {
