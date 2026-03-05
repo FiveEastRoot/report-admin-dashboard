@@ -904,7 +904,49 @@ async function openPreview() {
   const basePath = window.location.href.split('?')[0];
   const dirPath = basePath.substring(0, basePath.lastIndexOf('/'));
 
-  // Generate the exact viewer HTML and inject the current data
+  // Instead of fetching or waiting for viewer.js, we directly map the current editor state 
+  // into the HTML string. This guarantees 100% instant rendering with zero network requests.
+  const rData = state.reportData || {};
+
+  // Helper to safely escape HTML to prevent XSS and tag breakage
+  const safeHtml = (str) => {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  };
+
+  // Build Section Note and Source List (allows HTML / custom parsing)
+  const sectionNoteHtml = rData.Section_Note || '';
+  let sourceListHtml = '';
+  if (rData.Source_List) {
+    const lines = rData.Source_List.split('\n').filter(l => l.trim().length > 0);
+    sourceListHtml = '<div class="source-list-links">';
+    lines.forEach(line => {
+      const parts = line.replace(/^- /, '').split(' | ');
+      if (parts.length >= 2) {
+        const title = parts[0].trim();
+        const url = parts.slice(1).join(' | ').trim();
+        sourceListHtml += `<a href="\${safeHtml(url)}" target="_blank" class="source-link-item minimal">
+                  <span class="source-icon">🔗</span> 
+                  <div class="source-info">
+                      <span class="source-title">\${safeHtml(title)}</span>
+                  </div>
+              </a>`;
+      } else {
+        sourceListHtml += `<div class="source-link-item minimal" style="display:block; padding:8px 12px; color:#555;">\${safeHtml(line)}</div>`;
+      }
+    });
+    sourceListHtml += '</div>';
+  }
+
+  // Generator for simple sections
+  const getDisplay = (val) => val ? 'block' : 'none';
+
+  // Generate the exact viewer HTML with hardcoded injected data
   const viewerHtml = `
 <!DOCTYPE html>
 <html lang="ko">
@@ -920,105 +962,80 @@ async function openPreview() {
         <header class="viewer-header">
             <div class="header-center-info">
                 <div class="report-type-title">Insight Weekly</div>
-                <div class="report-date-badge" id="reportDate">YYYY-MM-DD</div>
+                <div class="report-date-badge">\${safeHtml(rData.Week_Start || 'YYYY-MM-DD')}</div>
             </div>
-            <h1 class="report-title" id="val_Headline">Headline Title Goes Here</h1>
+            <h1 class="report-title">\${safeHtml(rData.Headline || '제목 없음')}</h1>
         </header>
 
-        <div class="report-cover" id="wrap_Img_Cover" style="display: none;">
-            <img id="val_Img_Cover" src="" alt="Cover Image" />
+        <div class="report-cover" style="display: \${getDisplay(rData.Img_Cover)};">
+            <img src="\${safeHtml(rData.Img_Cover)}" alt="Cover Image" />
         </div>
 
-        <div class="report-desc-wrap" id="wrap_Head_Desc" style="display: none; margin-bottom: 48px; text-align: center;">
-            <p class="report-desc" id="val_Head_Desc"></p>
+        <div class="report-desc-wrap" style="display: \${getDisplay(rData.Head_Desc)}; margin-bottom: 48px; text-align: center;">
+            <p class="report-desc">\${safeHtml(rData.Head_Desc)}</p>
         </div>
 
         <main>
-            <div class="section-image" id="wrap_Img_Sec1" style="display: none;">
-                <img id="val_Img_Sec1" src="" alt="Section Image" />
+            <div class="section-image" style="display: \${getDisplay(rData.Img_Sec1)};">
+                <img src="\${safeHtml(rData.Img_Sec1)}" alt="Section Image" />
             </div>
 
-            <section class="report-section" id="sec_Context_Chg" style="display: none;">
+            <section class="report-section" style="display: \${getDisplay(rData.Context_Chg)};">
                 <div class="section-label">맥락 변화</div>
-                <div class="section-content highlight-box" id="val_Context_Chg"></div>
+                <div class="section-content highlight-box">\${safeHtml(rData.Context_Chg)}</div>
             </section>
 
-            <section class="report-section" id="sec_Point_Def" style="display: none;">
+            <section class="report-section" style="display: \${getDisplay(rData.Point_Def)};">
                 <div class="section-label">주요 포인트</div>
-                <div class="section-content" id="val_Point_Def"></div>
+                <div class="section-content">\${safeHtml(rData.Point_Def)}</div>
             </section>
 
-            <section class="curation-area" id="sec_Articles" style="display: none;">
-                <div class="curation-list" id="val_Articles"></div>
-            </section>
-
-            <div class="section-image" id="wrap_Img_Sec2" style="display: none;">
-                <img id="val_Img_Sec2" src="" alt="Section Image" />
+            <div class="section-image" style="display: \${getDisplay(rData.Img_Sec2)};">
+                <img src="\${safeHtml(rData.Img_Sec2)}" alt="Section Image" />
             </div>
 
-            <section class="report-section" id="sec_Body_Flow" style="display: none;">
-                <div class="section-content" id="val_Body_Flow"></div>
+            <section class="report-section" style="display: \${getDisplay(rData.Body_Flow)};">
+                <div class="section-content">\${safeHtml(rData.Body_Flow)}</div>
             </section>
 
-            <div class="section-image" id="wrap_Img_Body_Mid" style="display: none;">
-                <img id="val_Img_Body_Mid" src="" alt="Section Image" />
+            <div class="section-image" style="display: \${getDisplay(rData.Img_Body_Mid)};">
+                <img src="\${safeHtml(rData.Img_Body_Mid)}" alt="Section Image" />
             </div>
 
-            <section class="report-section" id="sec_Body_Issues" style="display: none;">
+            <section class="report-section" style="display: \${getDisplay(rData.Body_Issues)};">
                 <div class="section-label">주요 이슈</div>
-                <div class="section-content" id="val_Body_Issues"></div>
+                <div class="section-content">\${safeHtml(rData.Body_Issues)}</div>
             </section>
 
-            <section class="report-section" id="sec_Body_3Key" style="display: none;">
+            <section class="report-section" style="display: \${getDisplay(rData.Body_3Key)};">
                 <div class="section-label">핵심 요약</div>
-                <div class="section-content" id="val_Body_3Key"></div>
+                <div class="section-content">\${safeHtml(rData.Body_3Key)}</div>
             </section>
 
-            <div class="section-image" id="wrap_Img_Sec3" style="display: none;">
-                <img id="val_Img_Sec3" src="" alt="Section Image" />
+            <div class="section-image" style="display: \${getDisplay(rData.Img_Sec3)};">
+                <img src="\${safeHtml(rData.Img_Sec3)}" alt="Section Image" />
             </div>
 
-            <section class="report-section" id="sec_App_Question" style="display: none;">
+            <section class="report-section" style="display: \${getDisplay(rData.App_Question)};">
                 <div class="section-label">적용 질문</div>
-                <div class="section-content" id="val_App_Question"></div>
+                <div class="section-content">\${safeHtml(rData.App_Question)}</div>
             </section>
 
-            <section class="report-section" id="sec_App_Predict" style="display: none;">
+            <section class="report-section" style="display: \${getDisplay(rData.App_Predict)};">
                 <div class="section-label">향후 전망</div>
-                <div class="section-content" id="val_App_Predict"></div>
+                <div class="section-content">\${safeHtml(rData.App_Predict)}</div>
             </section>
 
-            <section class="report-section" id="sec_Source_List" style="display: none;">
+            <section class="report-section" style="display: \${getDisplay(rData.Source_List)};">
                 <div class="section-label">출처</div>
-                <div class="section-content section-note" id="val_Source_List"></div>
+                <div class="section-content section-note">\${sourceListHtml}</div>
             </section>
 
-            <section class="report-section" id="sec_Section_Note" style="display: none;">
-                <div class="section-content section-note" id="val_Section_Note"></div>
+            <section class="report-section" style="display: \${getDisplay(rData.Section_Note)};">
+                <div class="section-content section-note">\${sectionNoteHtml}</div>
             </section>
         </main>
     </div>
-
-    <script src="\${dirPath}/viewer.js"></script>
-    <script>
-        window.INJECTED_WEEK = "${currentVal}";
-        
-        // Use a polling mechanism to wait for viewer.js to finish loading
-        function tryRender() {
-            if (typeof initWeeklyViewer === 'function') {
-                initWeeklyViewer();
-                
-                // Hide header nav from preview if any
-                const navs = document.querySelectorAll('.header-nav');
-                navs.forEach(n => n.style.display = 'none');
-            } else {
-                setTimeout(tryRender, 50); // Try again in 50ms
-            }
-        }
-        
-        // Start polling immediately
-        tryRender();
-    </script>
 </body>
 </html>
   `;
