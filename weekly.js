@@ -904,14 +904,6 @@ async function openPreview() {
   const basePath = window.location.href.split('?')[0];
   const dirPath = basePath.substring(0, basePath.lastIndexOf('/'));
 
-  // Fetch viewer.css and inline it (srcdoc iframes cannot load external link tags)
-  let cssText = '';
-  try {
-    const cssResp = await fetch(dirPath + '/viewer.css');
-    if (cssResp.ok) cssText = await cssResp.text();
-  } catch (e) {
-    console.warn('Could not fetch viewer.css for preview:', e);
-  }
 
   // Instead of fetching or waiting for viewer.js, we directly map the current editor state 
   // into the HTML string. This guarantees 100% instant rendering with zero network requests.
@@ -959,10 +951,11 @@ async function openPreview() {
   const viewerHtml = '<!DOCTYPE html>'
     + '<html lang="ko">'
     + '<head>'
+    + '  <base href="' + dirPath + '/" />'
     + '  <meta charset="UTF-8" />'
     + '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />'
     + '  <title>Preview</title>'
-    + '  <style>' + cssText + '</style>'
+    + '  <link rel="stylesheet" href="viewer.css" />'
     + '  <style>body { background-color: #f8fafc; }</style>'
     + '</head>'
     + '<body>'
@@ -1032,8 +1025,12 @@ async function openPreview() {
     + '</body>'
     + '</html>';
 
-  iframe.removeAttribute('src');
-  iframe.srcdoc = viewerHtml;
+  // Use Blob URL instead of srcdoc so the iframe has a proper URL context
+  // that can resolve external resources like CSS via the <base href> tag
+  var previewBlob = new Blob([viewerHtml], { type: 'text/html' });
+  var previewUrl = URL.createObjectURL(previewBlob);
+  iframe.removeAttribute('srcdoc');
+  iframe.src = previewUrl;
 }
 
 function closePreview() {
@@ -1041,6 +1038,7 @@ function closePreview() {
   const iframe = document.getElementById('previewIframe');
   if (overlay) overlay.classList.remove('open');
   if (iframe) {
+    if (iframe.src && iframe.src.startsWith('blob:')) URL.revokeObjectURL(iframe.src);
     iframe.src = '';
     iframe.removeAttribute('srcdoc');
   }
