@@ -1025,12 +1025,16 @@ async function openPreview() {
     + '</body>'
     + '</html>';
 
-  // Use Blob URL instead of srcdoc so the iframe has a proper URL context
-  // that can resolve external resources like CSS via the <base href> tag
-  var previewBlob = new Blob([viewerHtml], { type: 'text/html' });
-  var previewUrl = URL.createObjectURL(previewBlob);
+  // Use document.write on about:blank iframe to inherit parent's origin
+  // This allows <link> and <img> tags to resolve against the Netlify origin
   iframe.removeAttribute('srcdoc');
-  iframe.src = previewUrl;
+  iframe.src = 'about:blank';
+  setTimeout(function() {
+    var doc = iframe.contentDocument || iframe.contentWindow.document;
+    doc.open();
+    doc.write(viewerHtml);
+    doc.close();
+  }, 50);
 }
 
 function closePreview() {
