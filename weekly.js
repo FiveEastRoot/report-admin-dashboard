@@ -1,35 +1,35 @@
-﻿/* =============================================================
-   DAILY REPORT ADMIN DASHBOARD ??app.js
+/* =============================================================
+   DAILY REPORT ADMIN DASHBOARD — app.js
    Main application logic: API, state, drag-drop, image upload
    ============================================================= */
 
 'use strict';
 
-/* ??? CONFIG ??????????????????????????????????????????????????
-   援먯껜 ?ъ씤??
-   - GAS_URL: GAS ?뱀빋 ?붾뱶?ъ씤??(?꾩옱 紐낆꽭?쒖쓽 URL濡??ㅼ젙)
-   - R2_UPLOAD_URL: Cloudflare Worker ?낅줈???붾뱶?ъ씤??(異뷀썑 援먯껜)
-??????????????????????????????????????????????????????????????? */
+/* ─── CONFIG ──────────────────────────────────────────────────
+   교체 포인트:
+   - GAS_URL: GAS 웹앱 엔드포인트 (현재 명세서의 URL로 설정)
+   - R2_UPLOAD_URL: Cloudflare Worker 업로드 엔드포인트 (추후 교체)
+─────────────────────────────────────────────────────────────── */
 const CONFIG = {
-  // 吏곸젒 釉뚮씪?곗??먯꽌 GAS ?묎렐 (text/plain ???댁슜??Preflight ?고쉶, 502 Timeout 諛⑹?)
+  // 직접 브라우저에서 GAS 접근 (text/plain 을 이용해 Preflight 우회, 502 Timeout 방지)
   GAS_URL: 'https://script.google.com/macros/s/AKfycbygxB_Xd7VyET-QKtaP1PqRno7XuTkaVKFW2vmDSQ1wD3FMoA_XEmKCFMqPE3YvBSc_/exec',
   R2_UPLOAD_URL: 'https://dashboard-image-upload.geun9265.workers.dev/',
-  POLL_INTERVAL_MS: 5000,        // AI ?앹꽦 ?대쭅 二쇨린 (5珥?
-  POLL_TIMEOUT_MS: 150000,      // 理쒕? ?湲??쒓컙 (2.5遺?
+  POLL_INTERVAL_MS: 5000,        // AI 생성 폴링 주기 (5초)
+  POLL_TIMEOUT_MS: 150000,      // 최대 대기 시간 (2.5분)
 };
 
-/* ??? IN-MEMORY STATE ??????????????????????????????????????????? */
+/* ─── IN-MEMORY STATE ─────────────────────────────────────────── */
 const state = {
   reportDate: '',          // "YYYY-MM-DD"
-  reportData: null,        // GAS?먯꽌 諛쏆? Daily ?쒗듃 ?곗씠??
-  articles: [],            // ?먮젅?댁뀡 由ъ뒪??(?쒖꽌 ?ы븿)
-  activeArticle: null,     // ?꾩옱 ?⑤꼸 B ?섎떒?먯꽌 ?몄쭛 以묒씤 湲곗궗
-  activeEdits: {},         // { uuid ??{ Subtitle, Core_Content, Key_Point, Item_Thumb } }
+  reportData: null,        // GAS에서 받은 Daily 시트 데이터
+  articles: [],            // 큐레이션 리스트 (순서 포함)
+  activeArticle: null,     // 현재 패널 B 하단에서 편집 중인 기사
+  activeEdits: {},         // { uuid → { Subtitle, Core_Content, Key_Point, Item_Thumb } }
   status: 'Draft',         // Draft | Ready | Published
   pollTimer: null,
 };
 
-/* ??? DOM REFS ?????????????????????????????????????????????????? */
+/* ─── DOM REFS ────────────────────────────────────────────────── */
 const $ = (id) => document.getElementById(id);
 
 const DOM = {
@@ -69,21 +69,21 @@ const DOM = {
   loadingLabel: $('loadingLabel'),
   loadingDesc: $('loadingDesc'),
 
-  // Report text fields (from?릒ame ??element)
+  // Report text fields (from‐name → element)
   textFields: ['Headline', 'Head_Desc', 'Context_Chg', 'Point_Def', 'Body_Flow', 'Body_Issues', 'Body_3Key', 'App_Question', 'App_Predict', 'Section_Note'],
   imgFields: ['Img_Cover', 'Img_Sec1', 'Img_Sec2', 'Img_Body_Mid', 'Img_Sec3'],
 };
 
-/* ??? UTILITIES ????????????????????????????????????????????????? */
+/* ─── UTILITIES ───────────────────────────────────────────────── */
 
-/** Format Date ??YYYY-MM-DD */
+/** Format Date → YYYY-MM-DD */
 function fmtDate(d) {
   return d.toISOString().slice(0, 10);
 }
 
 /**
- * GAS???쒗듃???좎쭨 ???JS Date 媛앹껜濡?吏곷젹?뷀빀?덈떎.
- * 紐⑤뱺 reportData 媛믪쓣 ?덉쟾?섍쾶 臾몄옄?대줈 蹂?섑빀?덈떎.
+ * GAS는 시트의 날짜 셀을 JS Date 객체로 직렬화합니다.
+ * 모든 reportData 값을 안전하게 문자열로 변환합니다.
  */
 function safeStr(val) {
   if (val === null || val === undefined) return '';
@@ -95,40 +95,40 @@ function safeStr(val) {
 
 /**
  * GAS POST helper
- * - Content-Type ?ㅻ뜑瑜?紐낆떆?섏? ?딆쑝硫?釉뚮씪?곗?媛 text/plain ?쇰줈 蹂대궡硫댁꽌
- *   CORS preflight瑜??앸왂?⑸땲??
- * - GAS ?뱀빋? 302 由щ떎?대젆?몃? 嫄곗튂誘濡?redirect: 'follow' ?꾩닔.
+ * - Content-Type 헤더를 명시하지 않으면 브라우저가 text/plain 으로 보내면서
+ *   CORS preflight를 생략합니다.
+ * - GAS 웹앱은 302 리다이렉트를 거치므로 redirect: 'follow' 필수.
  */
 async function gasApi(action, payload = {}) {
   const body = JSON.stringify({ action, payload });
   const res = await fetch(CONFIG.GAS_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'text/plain' }, // GAS 紐낆꽭: text/plain ?꾩닔 (preflight 諛⑹?)
+    headers: { 'Content-Type': 'text/plain' }, // GAS 명세: text/plain 필수 (preflight 방지)
     redirect: 'follow',
     body,
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const json = await res.json();
-  if (!json.success) throw new Error(json.error || '?????녿뒗 ?ㅻ쪟');
+  if (!json.success) throw new Error(json.error || '알 수 없는 오류');
   return json.data;
 }
 
-/** Cloudflare R2 Worker ?대?吏 ?낅줈??*/
+/** Cloudflare R2 Worker 이미지 업로드 */
 async function uploadToR2(file) {
   if (!CONFIG.R2_UPLOAD_URL) {
-    // Worker URL??誘몄꽕?뺤씤 寃쎌슦: 濡쒖뺄 Object URL濡??꾩떆 誘몃━蹂닿린
+    // Worker URL이 미설정인 경우: 로컬 Object URL로 임시 미리보기
     return URL.createObjectURL(file);
   }
   const form = new FormData();
   form.append('file', file);
   const res = await fetch(CONFIG.R2_UPLOAD_URL, { method: 'POST', body: form });
-  if (!res.ok) throw new Error(`R2 ?낅줈???ㅽ뙣: HTTP ${res.status}`);
+  if (!res.ok) throw new Error(`R2 업로드 실패: HTTP ${res.status}`);
   const json = await res.json();
-  if (!json.url) throw new Error('Worker ?묐떟??url ?ㅺ? ?놁뒿?덈떎');
+  if (!json.url) throw new Error('Worker 응답에 url 키가 없습니다');
   return json.url;
 }
 
-/* ?? Toast notifications ???????????????????????????????????????? */
+/* ── Toast notifications ──────────────────────────────────────── */
 function showToast(message, type = 'info', duration = 3500) {
   const container = $('toastContainer');
   const toast = document.createElement('div');
@@ -141,8 +141,8 @@ function showToast(message, type = 'info', duration = 3500) {
   }, duration);
 }
 
-/* ?? Loading overlay ???????????????????????????????????????????? */
-function showLoading(label = '泥섎━ 以?..', desc = '?좎떆留?湲곕떎?ㅼ＜?몄슂.') {
+/* ── Loading overlay ──────────────────────────────────────────── */
+function showLoading(label = '처리 중...', desc = '잠시만 기다려주세요.') {
   DOM.loadingLabel.textContent = label;
   DOM.loadingDesc.textContent = desc;
   DOM.loadingOverlay.classList.add('visible');
@@ -152,7 +152,7 @@ function hideLoading() {
   DOM.loadingOverlay.classList.remove('visible');
 }
 
-/* ??? STATUS MANAGEMENT ????????????????????????????????????????? */
+/* ─── STATUS MANAGEMENT ───────────────────────────────────────── */
 function applyStatus(status) {
   state.status = status;
   const badge = DOM.statusBadge;
@@ -186,7 +186,7 @@ function applyStatus(status) {
   }
 }
 
-/* ??? PANEL A ??ARTICLE CURATION ??????????????????????????????? */
+/* ─── PANEL A — ARTICLE CURATION ─────────────────────────────── */
 
 function renderArticleList() {
   const list = DOM.articleList;
@@ -196,13 +196,13 @@ function renderArticleList() {
     list.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon"></div>
-        <p>?먮젅?댁뀡??湲곗궗媛 ?놁뒿?덈떎.<br/>[+ 湲곗궗 異붽?]濡?異붽???二쇱꽭??</p>
+        <p>큐레이션된 기사가 없습니다.<br/>[+ 기사 추가]로 추가해 주세요.</p>
       </div>`;
-    DOM.articleCount.textContent = '0媛?;
+    DOM.articleCount.textContent = '0개';
     return;
   }
 
-  DOM.articleCount.textContent = `${articles.length}媛?;
+  DOM.articleCount.textContent = `${articles.length}개`;
   list.innerHTML = '';
 
   articles.forEach((art, idx) => {
@@ -212,20 +212,20 @@ function renderArticleList() {
     card.dataset.idx = idx;
     card.draggable = true;
     card.setAttribute('role', 'listitem');
-    card.setAttribute('aria-label', art.Title_Org || art.title || '湲곗궗');
+    card.setAttribute('aria-label', art.Title_Org || art.title || '기사');
 
     const thumbHtml = art.Item_Thumb || art.thumb
-      ? `<img class="article-thumb" src="${art.Item_Thumb || art.thumb}" alt="?몃꽕?? loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><div class="article-thumb-placeholder" style="display:none"></div>`
+      ? `<img class="article-thumb" src="${art.Item_Thumb || art.thumb}" alt="썸네일" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><div class="article-thumb-placeholder" style="display:none"></div>`
       : `<div class="article-thumb-placeholder"></div>`;
 
-    const title = art.Subtitle || '(?쒕ぉ ?놁쓬)';
+    const title = art.Subtitle || '(제목 없음)';
     const subtitle = art.Title_Org || art.title || '';
     const category = art.Category_ID || art.category || '';
     const score = art.AI_Score !== undefined ? art.AI_Score : (art.score !== undefined ? art.score : '');
 
     card.innerHTML = `
       <span class="index-badge">${idx + 1}</span>
-      <span class="drag-handle" title="?쒕옒洹명븯???쒖꽌 蹂寃?>??/span>
+      <span class="drag-handle" title="드래그하여 순서 변경">⠿</span>
       ${thumbHtml}
       <div class="article-info">
         <div class="article-title">${escHtml(title)}</div>
@@ -235,10 +235,10 @@ function renderArticleList() {
           ${score !== '' ? `<span class="tag tag-score">${score}</span>` : ''}
         </div>
       </div>
-      <button class="remove-btn" data-uuid="${art.uuid}" title="?쒖쇅" aria-label="湲곗궗 ?쒖쇅">??/button>
+      <button class="remove-btn" data-uuid="${art.uuid}" title="제외" aria-label="기사 제외">✕</button>
     `;
 
-    // Select article ??populate active editor
+    // Select article → populate active editor
     card.addEventListener('click', (e) => {
       if (e.target.classList.contains('remove-btn')) return;
       selectArticle(art, card);
@@ -293,8 +293,8 @@ function selectArticle(art, cardEl) {
   setImagePreview('Item_Thumb', thumbUrl);
 
   // Labels
-  const title = art.Subtitle || '湲곗궗 ?몄쭛';
-  DOM.activeTitleLabel.textContent = title.length > 40 ? title.slice(0, 40) + '?? : title;
+  const title = art.Subtitle || '기사 편집';
+  DOM.activeTitleLabel.textContent = title.length > 40 ? title.slice(0, 40) + '…' : title;
   DOM.activeUuidLabel.textContent = art.uuid;
 
   DOM.activeSection.classList.remove('hidden');
@@ -313,7 +313,7 @@ function flushActiveEditsToState() {
   };
 }
 
-/* ??? DRAG & DROP ??????????????????????????????????????????????? */
+/* ─── DRAG & DROP ─────────────────────────────────────────────── */
 let dragSrcIdx = null;
 
 function onDragStart(e) {
@@ -353,13 +353,13 @@ function onDragEnd() {
   dragSrcIdx = null;
 }
 
-/* ??? MODAL ??Add Article ??????????????????????????????????????? */
+/* ─── MODAL — Add Article ─────────────────────────────────────── */
 let allAvailableArticles = [];
 
 async function openAddModal() {
   DOM.addModal.classList.add('open');
   DOM.modalSearch.value = '';
-  DOM.modalList.innerHTML = `<div class="empty-state"><div class="empty-icon"></div><p>湲곗궗 紐⑸줉??遺덈윭?ㅻ뒗 以?..</p></div>`;
+  DOM.modalList.innerHTML = `<div class="empty-state"><div class="empty-icon"></div><p>기사 목록을 불러오는 중...</p></div>`;
 
   try {
     const date = state.reportDate;
@@ -367,17 +367,17 @@ async function openAddModal() {
     allAvailableArticles = Array.isArray(data) ? data : [];
     renderModalList(allAvailableArticles);
   } catch (err) {
-    DOM.modalList.innerHTML = `<div class="empty-state"><div class="empty-icon"></div><p>遺덈윭?ㅺ린 ?ㅽ뙣: ${escHtml(err.message)}</p></div>`;
-    showToast('湲곗궗 紐⑸줉 濡쒕뱶 ?ㅽ뙣: ' + err.message, 'error');
+    DOM.modalList.innerHTML = `<div class="empty-state"><div class="empty-icon"></div><p>불러오기 실패: ${escHtml(err.message)}</p></div>`;
+    showToast('기사 목록 로드 실패: ' + err.message, 'error');
   }
 }
 
 function renderModalList(articles) {
   const existing = new Set(state.articles.map(a => a.uuid));
-  DOM.modalCount.textContent = `${articles.length}媛?湲곗궗`;
+  DOM.modalCount.textContent = `${articles.length}개 기사`;
 
   if (!articles.length) {
-    DOM.modalList.innerHTML = `<div class="empty-state"><div class="empty-icon"></div><p>寃??寃곌낵媛 ?놁뒿?덈떎.</p></div>`;
+    DOM.modalList.innerHTML = `<div class="empty-state"><div class="empty-icon"></div><p>검색 결과가 없습니다.</p></div>`;
     return;
   }
 
@@ -388,7 +388,7 @@ function renderModalList(articles) {
     item.dataset.uuid = art.uuid;
 
     // Use Subtitle as the main display title, and Title_Org as subtitle
-    const title = art.Subtitle || '(?쒕ぉ ?놁쓬)';
+    const title = art.Subtitle || '(제목 없음)';
     const subtitle = art.Title_Org || art.title || '';
     const catHtml = art.category ? `<span class="tag tag-category">${escHtml(art.category)}</span>` : '';
     const scoreHtml = art.score ? `<span class="tag tag-score">${art.score}</span>` : '';
@@ -419,7 +419,7 @@ function renderModalList(articles) {
 function addArticleFromModal(art) {
   state.articles.push(art);
   renderArticleList();
-  showToast(`"${(art.Subtitle || art.Title_Org || art.title || art.uuid).slice(0, 30)}?? 異붽???, 'success');
+  showToast(`"${(art.Subtitle || art.Title_Org || art.title || art.uuid).slice(0, 30)}…" 추가됨`, 'success');
 }
 
 function closeAddModal() {
@@ -445,7 +445,7 @@ DOM.modalSearch.addEventListener('input', () => {
   renderModalList(filtered);
 });
 
-/* ??? PANEL B ??IMAGE UPLOAD ???????????????????????????????????? */
+/* ─── PANEL B — IMAGE UPLOAD ──────────────────────────────────── */
 
 const IMAGE_FIELD_IDS = ['Img_Cover', 'Img_Sec1', 'Img_Sec2', 'Img_Body_Mid', 'Img_Sec3', 'Item_Thumb'];
 
@@ -465,7 +465,7 @@ function setImagePreview(fieldName, url) {
 
 async function handleImageUpload(fieldName, file) {
   if (!file || !file.type.startsWith('image/')) {
-    showToast('?대?吏 ?뚯씪留??낅줈?쒗븷 ???덉뒿?덈떎.', 'warning');
+    showToast('이미지 파일만 업로드할 수 있습니다.', 'warning');
     return;
   }
 
@@ -476,9 +476,9 @@ async function handleImageUpload(fieldName, file) {
     const url = await uploadToR2(file);
     $(`f_${fieldName}`).value = url;
     setImagePreview(fieldName, url);
-    showToast(`${fieldName} ?낅줈???꾨즺`, 'success');
+    showToast(`${fieldName} 업로드 완료`, 'success');
   } catch (err) {
-    showToast(`?낅줈???ㅽ뙣: ${err.message}`, 'error');
+    showToast(`업로드 실패: ${err.message}`, 'error');
   } finally {
     if (upInd) upInd.classList.remove('visible');
   }
@@ -512,7 +512,7 @@ function setupDropZone(fieldName) {
 
 IMAGE_FIELD_IDS.forEach(setupDropZone);
 
-// URL ?낅젰李?吏곸젒 ?낅젰 ??hidden ?꾨뱶 + 誘몃━蹂닿린 ?숆린??
+// URL 입력창 직접 입력 → hidden 필드 + 미리보기 동기화
 IMAGE_FIELD_IDS.forEach(fieldName => {
   const urlInput = $(`url_${fieldName}`);
   if (!urlInput) return;
@@ -532,10 +532,10 @@ IMAGE_FIELD_IDS.forEach(fieldName => {
   });
 });
 
-/* ??? LOAD REPORT DATA ?????????????????????????????????????????? */
+/* ─── LOAD REPORT DATA ────────────────────────────────────────── */
 
 async function loadReport(date) {
-  showLoading('由ы룷??濡쒕뱶 以?..', `${date} ?곗씠?곕? 遺덈윭?ㅺ퀬 ?덉뒿?덈떎.`);
+  showLoading('리포트 로드 중...', `${date} 데이터를 불러오고 있습니다.`);
 
   try {
     const data = await gasApi('GET_REPORT_DATA', { reportType: 'WEEKLY', targetDate: date });
@@ -546,7 +546,7 @@ async function loadReport(date) {
     state.activeEdits = {};
     state.activeArticle = null;
 
-    // Populate text fields ??safeStr handles Date objects from GAS
+    // Populate text fields — safeStr handles Date objects from GAS
     DOM.textFields.forEach(name => {
       const el = $(`f_${name}`);
       if (el) el.value = safeStr(state.reportData[name]);
@@ -574,9 +574,9 @@ async function loadReport(date) {
     DOM.btnGenerate.disabled = false;
     DOM.btnPreview.disabled = false;
 
-    showToast(`${date} 由ы룷??濡쒕뱶 ?꾨즺`, 'success');
+    showToast(`${date} 리포트 로드 완료`, 'success');
   } catch (err) {
-    showToast('由ы룷??濡쒕뱶 ?ㅽ뙣: ' + err.message, 'error');
+    showToast('리포트 로드 실패: ' + err.message, 'error');
   } finally {
     hideLoading();
   }
@@ -584,11 +584,11 @@ async function loadReport(date) {
 
 DOM.loadBtn.addEventListener('click', () => {
   const date = DOM.reportDate.value;
-  if (!date) { showToast('?좎쭨瑜??좏깮??二쇱꽭??', 'warning'); return; }
+  if (!date) { showToast('날짜를 선택해 주세요.', 'warning'); return; }
   loadReport(date);
 });
 
-/* ??? COLLECT FORM VALUES ??????????????????????????????????????? */
+/* ─── COLLECT FORM VALUES ─────────────────────────────────────── */
 
 function collectReportUpdates() {
   const updates = {};
@@ -603,10 +603,10 @@ function collectReportUpdates() {
   return updates;
 }
 
-/* ??? PANEL C BUTTON HANDLERS ??????????????????????????????????? */
+/* ─── PANEL C BUTTON HANDLERS ─────────────────────────────────── */
 
 async function saveData() {
-  if (!state.reportDate) { showToast('由ы룷?몃? 癒쇱? 濡쒕뱶??二쇱꽭??', 'warning'); throw new Error('No date'); }
+  if (!state.reportDate) { showToast('리포트를 먼저 로드해 주세요.', 'warning'); throw new Error('No date'); }
 
   DOM.btnSave.disabled = true;
   try {
@@ -629,21 +629,21 @@ async function saveData() {
       gasApi('UPDATE_ACTIVE_DATA', { uuid, updates: edits }).catch(() => { })
     ));
 
-    showToast('????꾨즺', 'success');
+    showToast('저장 완료', 'success');
   } catch (err) {
-    showToast('????ㅽ뙣: ' + err.message, 'error');
+    showToast('저장 실패: ' + err.message, 'error');
     throw err;
   } finally {
     DOM.btnSave.disabled = false;
   }
 }
 
-/* 以묎컙 ???*/
+/* 중간 저장 */
 DOM.btnSave.addEventListener('click', () => {
   saveData().catch(() => { });
 });
 
-/* 媛쒕퀎 湲곗궗 ???踰꾪듉 */
+/* 개별 기사 저장 버튼 */
 DOM.saveActiveBtn.addEventListener('click', async () => {
   if (!state.activeArticle) return;
   flushActiveEditsToState();
@@ -656,40 +656,40 @@ DOM.saveActiveBtn.addEventListener('click', async () => {
     const artInList = state.articles.find(a => a.uuid === uuid);
     if (artInList && edits.Item_Thumb) artInList.Item_Thumb = edits.Item_Thumb;
     renderArticleList();
-    showToast('湲곗궗 ????꾨즺 ??, 'success');
+    showToast('기사 저장 완료 ✓', 'success');
   } catch (err) {
-    showToast('湲곗궗 ????ㅽ뙣: ' + err.message, 'error');
+    showToast('기사 저장 실패: ' + err.message, 'error');
   } finally {
     DOM.saveActiveBtn.disabled = false;
   }
 });
 
-/* AI 蹂몃Ц ?앹꽦 */
+/* AI 본문 생성 */
 DOM.btnGenerate.addEventListener('click', async () => {
-  if (!state.reportDate) { showToast('由ы룷?몃? 癒쇱? 濡쒕뱶??二쇱꽭??', 'warning'); return; }
+  if (!state.reportDate) { showToast('리포트를 먼저 로드해 주세요.', 'warning'); return; }
 
   const confirmed = window.confirm(
-    'AI 蹂몃Ц ?앹꽦??吏꾪뻾?섏떆寃좎뒿?덇퉴?\n??1~2遺??뚯슂?⑸땲??'
+    'AI 본문 생성을 진행하시겠습니까?\n약 1~2분 소요됩니다.'
   );
   if (!confirmed) return;
 
   DOM.btnGenerate.disabled = true;
   DOM.generateSpinner.classList.add('visible');
-  DOM.generateBtnText.textContent = 'AI ?앹꽦 以?..';
+  DOM.generateBtnText.textContent = 'AI 생성 중...';
 
   try {
     // Trigger generation
     await gasApi('RUN_WEEKLY_GENERATE', { targetDate: state.reportDate });
-    showToast('AI 二쇨컙 ?붿빟 ?앹꽦 ?쒖옉?? ?꾨즺源뚯? 湲곕떎由쎈땲?ㅲ?, 'info', 8000);
+    showToast('AI 주간 요약 생성 시작됨. 완료까지 기다립니다…', 'info', 8000);
 
     // Poll until Status becomes Ready
     await pollUntilReady();
   } catch (err) {
-    showToast('AI ?앹꽦 ?ㅽ뙣: ' + err.message, 'error');
+    showToast('AI 생성 실패: ' + err.message, 'error');
     DOM.btnGenerate.disabled = false;
   } finally {
     DOM.generateSpinner.classList.remove('visible');
-    DOM.generateBtnText.textContent = 'AI 蹂몃Ц ?앹꽦';
+    DOM.generateBtnText.textContent = 'AI 본문 생성';
   }
 });
 
@@ -700,7 +700,7 @@ async function pollUntilReady() {
   return new Promise((resolve, reject) => {
     const tick = async () => {
       if (Date.now() > deadline) {
-        reject(new Error('??꾩븘?? ?곹깭媛 Ready濡?蹂寃쎈릺吏 ?딆븯?듬땲??'));
+        reject(new Error('타임아웃: 상태가 Ready로 변경되지 않았습니다.'));
         return;
       }
       try {
@@ -717,7 +717,7 @@ async function pollUntilReady() {
             if (el) el.value = state.reportData[name] ?? '';
           });
           applyStatus(newStatus);
-          showToast('AI 蹂몃Ц ?앹꽦 ?꾨즺! ?곹깭: Ready ??, 'success');
+          showToast('AI 본문 생성 완료! 상태: Ready ✓', 'success');
           DOM.btnGenerate.disabled = false;
           resolve();
         } else {
@@ -731,39 +731,39 @@ async function pollUntilReady() {
   });
 }
 
-/* 理쒖쥌 諛쒗뻾 */
+/* 최종 발행 */
 DOM.btnPublish.addEventListener('click', async () => {
   if (state.status !== 'Ready') return;
 
   const confirmed = window.confirm(
-    '理쒖쥌 諛쒗뻾?섏떆寃좎뒿?덇퉴?\n諛쒗뻾 ?꾩뿉???섏젙??遺덇??⑸땲??'
+    '최종 발행하시겠습니까?\n발행 후에는 수정이 불가합니다.'
   );
   if (!confirmed) return;
 
-  showLoading('諛쒗뻾 以?..', 'DB ?곹깭瑜?Published濡?蹂寃쏀븯怨??덉뒿?덈떎.');
+  showLoading('발행 중...', 'DB 상태를 Published로 변경하고 있습니다.');
   try {
     await gasApi('PUBLISH_REPORT', {
       reportType: 'WEEKLY',
       targetDate: state.reportDate,
     });
     applyStatus('Published');
-    showToast('由ы룷?멸? 諛쒗뻾?섏뿀?듬땲??', 'success', 6000);
+    showToast('리포트가 발행되었습니다.', 'success', 6000);
   } catch (err) {
-    showToast('諛쒗뻾 ?ㅽ뙣: ' + err.message, 'error');
+    showToast('발행 실패: ' + err.message, 'error');
   } finally {
     hideLoading();
   }
 });
 
-/* Ready濡??꾪솚 (Unpublish) */
+/* Ready로 전환 (Unpublish) */
 if (DOM.btnUnpublish) {
   DOM.btnUnpublish.addEventListener('click', async () => {
     if (state.status !== 'Published') return;
 
-    const confirmed = window.confirm('Ready ?곹깭濡??섎룎由ъ떆寃좎뒿?덇퉴?\\n?ㅼ떆 諛고룷 ?꾧퉴吏 ?섏젙??媛?ν빐吏묐땲??');
+    const confirmed = window.confirm('Ready 상태로 되돌리시겠습니까?\\n다시 배포 전까지 수정이 가능해집니다.');
     if (!confirmed) return;
 
-    showLoading('?꾪솚 以?..', 'DB ?곹깭瑜?Ready濡?蹂寃쏀븯怨??덉뒿?덈떎.');
+    showLoading('전환 중...', 'DB 상태를 Ready로 변경하고 있습니다.');
     try {
       await gasApi('UPDATE_REPORT_DATA', {
         reportType: 'WEEKLY',
@@ -771,16 +771,16 @@ if (DOM.btnUnpublish) {
         updates: { Status: 'Ready' }
       });
       applyStatus('Ready');
-      showToast('?곹깭媛 Ready濡?蹂寃쎈릺?덉뒿?덈떎.', 'success', 4000);
+      showToast('상태가 Ready로 변경되었습니다.', 'success', 4000);
     } catch (err) {
-      showToast('?곹깭 ?꾪솚 ?ㅽ뙣: ' + err.message, 'error');
+      showToast('상태 전환 실패: ' + err.message, 'error');
     } finally {
       hideLoading();
     }
   });
 }
 
-/* ??? UTILITIES ????????????????????????????????????????????????? */
+/* ─── UTILITIES ───────────────────────────────────────────────── */
 
 /** Escape HTML special chars */
 function escHtml(str) {
@@ -792,7 +792,7 @@ function escHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
-/* ??? PREVIEW ??????????????????????????????????????????????????? */
+/* ─── PREVIEW ─────────────────────────────────────────────────── */
 
 function buildPreviewHtml() {
   const r = {};
@@ -812,32 +812,32 @@ function buildPreviewHtml() {
 
   // Header
   html += `<div class="pv-header">`;
-  html += `<div class="pv-date">WEEKLY REPORT ??${escHtml(state.reportDate)}</div>`;
-  html += `<h1 class="pv-headline">${escHtml(r.Headline || '(?ㅻ뱶?쇱씤 ?놁쓬)')}</h1>`;
+  html += `<div class="pv-date">WEEKLY REPORT — ${escHtml(state.reportDate)}</div>`;
+  html += `<h1 class="pv-headline">${escHtml(r.Headline || '(헤드라인 없음)')}</h1>`;
   if (r.Head_Desc) html += `<p class="pv-head-desc">${escHtml(r.Head_Desc)}</p>`;
   html += `</div>`;
 
   // Cover image
   if (r.Img_Cover) {
-    html += `<div class="pv-cover-wrap"><img src="${escHtml(r.Img_Cover)}" alt="而ㅻ쾭 ?대?吏" /></div>`;
+    html += `<div class="pv-cover-wrap"><img src="${escHtml(r.Img_Cover)}" alt="커버 이미지" /></div>`;
   }
 
   // Text sections
   const sections = [
-    { key: 'Context_Chg', label: '留λ씫 蹂??(Context Change)', img: 'Img_Sec1' },
-    { key: 'Point_Def', label: '二쇱슂 ?ъ씤??(Point Definition)', img: 'Img_Sec2' },
-    { key: 'Body_Flow', label: '蹂몃Ц ?먮쫫 (Body Flow)', img: 'Img_Body_Mid' },
-    { key: 'Body_Issues', label: '二쇱슂 ?댁뒋 (Body Issues)', img: null },
-    { key: 'Body_3Key', label: '?듭떖 3 ?붿빟 (Body 3 Key)', img: null },
-    { key: 'App_Question', label: '?곸슜 吏덈Ц (App Question)', img: 'Img_Sec3' },
-    { key: 'App_Predict', label: '?ν썑 ?꾨쭩 (App Predict)', img: null },
+    { key: 'Context_Chg', label: '맥락 변화 (Context Change)', img: 'Img_Sec1' },
+    { key: 'Point_Def', label: '주요 포인트 (Point Definition)', img: 'Img_Sec2' },
+    { key: 'Body_Flow', label: '본문 흐름 (Body Flow)', img: 'Img_Body_Mid' },
+    { key: 'Body_Issues', label: '주요 이슈 (Body Issues)', img: null },
+    { key: 'Body_3Key', label: '핵심 3 요약 (Body 3 Key)', img: null },
+    { key: 'App_Question', label: '적용 질문 (App Question)', img: 'Img_Sec3' },
+    { key: 'App_Predict', label: '향후 전망 (App Predict)', img: null },
   ];
 
   sections.forEach(sec => {
     const text = r[sec.key];
     html += `<div class="pv-section">`;
     html += `<div class="pv-section-label">${sec.label}</div>`;
-    html += `<div class="pv-section-body${!text ? ' empty' : ''}">${text ? escHtml(text) : '(?꾩쭅 ?묒꽦?섏? ?딆븯?듬땲??'}</div>`;
+    html += `<div class="pv-section-body${!text ? ' empty' : ''}">${text ? escHtml(text) : '(아직 작성되지 않았습니다)'}</div>`;
     html += `</div>`;
 
     // Section image
@@ -852,17 +852,17 @@ function buildPreviewHtml() {
   // Included articles
   const arts = state.articles;
   if (arts.length) {
-    html += `<h2 class="pv-articles-title">?벐 ?ㅻ뒛???먮젅?댁뀡 湲곗궗 (${arts.length})</h2>`;
+    html += `<h2 class="pv-articles-title">📰 오늘의 큐레이션 기사 (${arts.length})</h2>`;
     arts.forEach((art, idx) => {
       const edits = state.activeEdits[art.uuid] || {};
-      const title = edits.Subtitle || art.Subtitle || '(?쒕ぉ ?놁쓬)'; // Use Subtitle as the main display title
+      const title = edits.Subtitle || art.Subtitle || '(제목 없음)'; // Use Subtitle as the main display title
       const subtitle = art.Title_Org || art.title || ''; // Use Title_Org/title as subtitle
       const content = edits.Core_Content || art.Core_Content || '';
       const thumb = edits.Item_Thumb || art.Item_Thumb || art.thumb || '';
 
       const thumbHtml = thumb
         ? `<img class="pv-article-thumb" src="${escHtml(thumb)}" alt="" />`
-        : `<div class="pv-article-thumb-placeholder">?뱞</div>`;
+        : `<div class="pv-article-thumb-placeholder">📄</div>`;
 
       html += `<div class="pv-article-card">`;
       html += `<span class="pv-article-idx">${idx + 1}</span>`;
@@ -887,18 +887,18 @@ async function openPreview() {
   if (!overlay || !iframe) return;
 
   // Show loading indicator in iframe
-  iframe.srcdoc = '<div style="font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; color: #555;"><h3 style="color: #453FE8; margin-bottom: 8px;">誘몃━蹂닿린 以鍮?以?..</h3><p>理쒖떊 蹂寃쎌궗??쓣 ??ν븯怨??덉뒿?덈떎.</p></div>';
+  iframe.srcdoc = '<div style="font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; color: #555;"><h3 style="color: #453FE8; margin-bottom: 8px;">미리보기 준비 중...</h3><p>최신 변경사항을 저장하고 있습니다.</p></div>';
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
 
   // Auto-save before previewing
   try {
-    showToast('誘몃━蹂닿린 ???먮룞 ???以?..', 'info', 2000);
+    showToast('미리보기 전 자동 저장 중...', 'info', 2000);
     await saveData();
-    showToast('????꾨즺! 誘몃━蹂닿린瑜?濡쒕뱶?⑸땲??', 'success', 1500);
+    showToast('저장 완료! 미리보기를 로드합니다.', 'success', 1500);
   } catch (e) {
     console.error('Preview auto-save failed:', e);
-    showToast('?먮룞 ??μ뿉 ?ㅽ뙣?덉뒿?덈떎.', 'error', 3000);
+    showToast('자동 저장에 실패했습니다.', 'error', 3000);
   }
 
   // Simply load the actual viewer page in the iframe.
@@ -907,13 +907,11 @@ async function openPreview() {
   iframe.src = './viewer_weekly.html?week=' + encodeURIComponent(currentVal);
 }
 
-
 function closePreview() {
   const overlay = document.getElementById('previewOverlay');
   const iframe = document.getElementById('previewIframe');
   if (overlay) overlay.classList.remove('open');
   if (iframe) {
-    if (iframe.src && iframe.src.startsWith('blob:')) URL.revokeObjectURL(iframe.src);
     iframe.src = '';
     iframe.removeAttribute('srcdoc');
   }
@@ -930,7 +928,22 @@ if (previewOverlay) {
   });
 }
 
-/* ??? INIT ?????????????????????????????????????????????????????? */
+// PC / Mobile device toggle
+document.querySelectorAll('.device-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.device-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const frame = document.getElementById('previewFrame');
+    if (!frame) return;
+    if (btn.dataset.device === 'mobile') {
+      frame.classList.add('mobile-mode');
+    } else {
+      frame.classList.remove('mobile-mode');
+    }
+  });
+});
+
+/* ─── INIT ────────────────────────────────────────────────────── */
 
 function init() {
   // Get date from URL or default to today (KST: UTC+9)
@@ -952,7 +965,7 @@ function init() {
   });
 
   // Auto-load on page open
-  console.log('%c[Weekly Report Admin] 珥덇린???꾨즺. 由ы룷?몃? 濡쒕뱶?⑸땲?ㅲ?, 'color:#7C6AF7;font-weight:bold');
+  console.log('%c[Weekly Report Admin] 초기화 완료. 리포트를 로드합니다…', 'color:#7C6AF7;font-weight:bold');
   loadReport(targetDateStr);
 }
 

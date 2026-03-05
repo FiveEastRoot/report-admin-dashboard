@@ -926,6 +926,21 @@ if (previewOverlay) {
   });
 }
 
+// PC / Mobile device toggle
+document.querySelectorAll('.device-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.device-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const frame = document.getElementById('previewFrame');
+    if (!frame) return;
+    if (btn.dataset.device === 'mobile') {
+      frame.classList.add('mobile-mode');
+    } else {
+      frame.classList.remove('mobile-mode');
+    }
+  });
+});
+
 /* ─── INIT ────────────────────────────────────────────────────── */
 
 function init() {
