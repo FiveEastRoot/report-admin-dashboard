@@ -917,92 +917,75 @@ async function openPreview() {
       .replace(/'/g, "&#039;");
   };
 
-  // Build Articles HTML manually (if curation list exists)
-  let articlesHtml = '';
-  // Note: For daily, articles are managed separately via curation logic, but if they exist in a global state
-  // or DOM, we'd extract them. Since the user wants a quick structural preview, we'll map the main body fields.
-
   // Build Section Note (allows HTML)
   const sectionNoteHtml = rData.Section_Note || '';
 
   // Generator for simple sections
   const getDisplay = (val) => val ? 'block' : 'none';
 
-  // Generate the exact viewer HTML with hardcoded injected data
-  const viewerHtml = `
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Preview</title>
-    <link rel="stylesheet" href="\${dirPath}/viewer.css" />
-    <style>body { background-color: #f8fafc; }</style>
-</head>
-<body>
-    <div class="viewer-container" style="display: block;" id="viewerContent">
-        <header class="viewer-header">
-            <div class="header-center-info">
-                <div class="report-type-title">Insight Daily</div>
-                <div class="report-date-badge">\${safeHtml(rData.Report_Date || 'YYYY-MM-DD')}</div>
-            </div>
-            <h1 class="report-title">\${safeHtml(rData.Headline || '제목 없음')}</h1>
-        </header>
-
-        <div class="report-cover" style="display: \${getDisplay(rData.Img_Cover)};">
-            <img src="\${safeHtml(rData.Img_Cover)}" alt="Cover Image" />
-        </div>
-
-        <div class="report-desc-wrap" style="display: \${getDisplay(rData.Head_Desc)}; margin-bottom: 48px; text-align: center;">
-            <p class="report-desc">\${safeHtml(rData.Head_Desc)}</p>
-        </div>
-
-        <main>
-            <div class="section-image" style="display: \${getDisplay(rData.Img_Sec1)};">
-                <img src="\${safeHtml(rData.Img_Sec1)}" alt="Section 1" />
-            </div>
-
-            <section class="report-section" style="display: \${getDisplay(rData.Why_Imp)};">
-                <div class="section-label">왜 중요한가</div>
-                <div class="section-content highlight-box">\${safeHtml(rData.Why_Imp)}</div>
-            </section>
-
-            <section class="report-section" style="display: \${getDisplay(rData.Point_Now)};">
-                <div class="section-label">지금 주목할 포인트</div>
-                <div class="section-content">\${safeHtml(rData.Point_Now)}</div>
-            </section>
-
-            <div class="section-image" style="display: \${getDisplay(rData.Img_Sec2)}; margin-top: 64px;">
-                <img src="\${safeHtml(rData.Img_Sec2)}" alt="Section 2" />
-            </div>
-
-            <section class="report-section" style="display: \${getDisplay(rData.App_Review)};">
-                <div class="section-label">앱 리뷰</div>
-                <div class="section-content">\${safeHtml(rData.App_Review)}</div>
-            </section>
-
-            <section class="report-section" style="display: \${getDisplay(rData.App_Prep)};">
-                <div class="section-label">준비 사항</div>
-                <div class="section-content">\${safeHtml(rData.App_Prep)}</div>
-            </section>
-
-            <section class="report-section" style="display: \${getDisplay(rData.App_Point)};">
-                <div class="section-label">핵심 적용</div>
-                <div class="section-content">\${safeHtml(rData.App_Point)}</div>
-            </section>
-
-            <div class="section-image" style="display: \${getDisplay(rData.Img_Sec3)};">
-                <img src="\${safeHtml(rData.Img_Sec3)}" alt="Section 3" />
-            </div>
-
-            <section class="report-section" style="display: \${getDisplay(rData.Section_Note)};">
-                <div class="section-content section-note">\${sectionNoteHtml}</div>
-            </section>
-        </main>
-    </div>
-</body>
-</html>
-  `;
+  // Build the viewer HTML using string concatenation (NOT template literals)
+  // to avoid escaping issues with the editing toolchain.
+  const viewerHtml = '<!DOCTYPE html>'
+    + '<html lang="ko">'
+    + '<head>'
+    + '  <meta charset="UTF-8" />'
+    + '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />'
+    + '  <title>Preview</title>'
+    + '  <link rel="stylesheet" href="' + dirPath + '/viewer.css" />'
+    + '  <style>body { background-color: #f8fafc; }</style>'
+    + '</head>'
+    + '<body>'
+    + '  <div class="viewer-container" style="display: block;">'
+    + '    <header class="viewer-header">'
+    + '      <div class="header-center-info">'
+    + '        <div class="report-type-title">Insight Daily</div>'
+    + '        <div class="report-date-badge">' + safeHtml(rData.Report_Date || 'YYYY-MM-DD') + '</div>'
+    + '      </div>'
+    + '      <h1 class="report-title">' + safeHtml(rData.Headline || '') + '</h1>'
+    + '    </header>'
+    + '    <div class="report-cover" style="display: ' + getDisplay(rData.Img_Cover) + ';">'
+    + '      <img src="' + safeHtml(rData.Img_Cover) + '" alt="Cover Image" />'
+    + '    </div>'
+    + '    <div class="report-desc-wrap" style="display: ' + getDisplay(rData.Head_Desc) + '; margin-bottom: 48px; text-align: center;">'
+    + '      <p class="report-desc">' + safeHtml(rData.Head_Desc) + '</p>'
+    + '    </div>'
+    + '    <main>'
+    + '      <div class="section-image" style="display: ' + getDisplay(rData.Img_Sec1) + ';">'
+    + '        <img src="' + safeHtml(rData.Img_Sec1) + '" alt="Section 1" />'
+    + '      </div>'
+    + '      <section class="report-section" style="display: ' + getDisplay(rData.Why_Imp) + ';">'
+    + '        <div class="section-label">\uc65c \uc911\uc694\ud55c\uac00</div>'
+    + '        <div class="section-content highlight-box">' + safeHtml(rData.Why_Imp) + '</div>'
+    + '      </section>'
+    + '      <section class="report-section" style="display: ' + getDisplay(rData.Point_Now) + ';">'
+    + '        <div class="section-label">\uc9c0\uae08 \uc8fc\ubaa9\ud560 \ud3ec\uc778\ud2b8</div>'
+    + '        <div class="section-content">' + safeHtml(rData.Point_Now) + '</div>'
+    + '      </section>'
+    + '      <div class="section-image" style="display: ' + getDisplay(rData.Img_Sec2) + '; margin-top: 64px;">'
+    + '        <img src="' + safeHtml(rData.Img_Sec2) + '" alt="Section 2" />'
+    + '      </div>'
+    + '      <section class="report-section" style="display: ' + getDisplay(rData.App_Review) + ';">'
+    + '        <div class="section-label">\uc571 \ub9ac\ubdf0</div>'
+    + '        <div class="section-content">' + safeHtml(rData.App_Review) + '</div>'
+    + '      </section>'
+    + '      <section class="report-section" style="display: ' + getDisplay(rData.App_Prep) + ';">'
+    + '        <div class="section-label">\uc900\ube44 \uc0ac\ud56d</div>'
+    + '        <div class="section-content">' + safeHtml(rData.App_Prep) + '</div>'
+    + '      </section>'
+    + '      <section class="report-section" style="display: ' + getDisplay(rData.App_Point) + ';">'
+    + '        <div class="section-label">\ud575\uc2ec \uc801\uc6a9</div>'
+    + '        <div class="section-content">' + safeHtml(rData.App_Point) + '</div>'
+    + '      </section>'
+    + '      <div class="section-image" style="display: ' + getDisplay(rData.Img_Sec3) + ';">'
+    + '        <img src="' + safeHtml(rData.Img_Sec3) + '" alt="Section 3" />'
+    + '      </div>'
+    + '      <section class="report-section" style="display: ' + getDisplay(rData.Section_Note) + ';">'
+    + '        <div class="section-content section-note">' + sectionNoteHtml + '</div>'
+    + '      </section>'
+    + '    </main>'
+    + '  </div>'
+    + '</body>'
+    + '</html>';
 
   iframe.removeAttribute('src');
   iframe.srcdoc = viewerHtml;
