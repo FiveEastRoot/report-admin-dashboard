@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>K-BRAIN published Reports</title>
+    <!-- 로컬 테스트 및 실 배포를 위해 같은 디렉토리의 viewer.css 로드 -->
+    <link rel="stylesheet" href="./viewer.css" />
+</head>
+
+<body>
+
+    <!-- Loading State -->
+    <div id="loader" class="viewer-loader">
+        <div class="spinner"></div>
+        <div style="font-weight: 600; color: var(--color-dark);">리포트 목록을 불러오는 중...</div>
+    </div>
+
+    <header class="list-page-header">
+        <div class="viewer-brand" style="display: flex; justify-content: center; margin-bottom: 16px;">
+            <img src="https://pub-03167621cdbf4cc3bd490e069b232ca3.r2.dev/reports/KBRAIN%20CI.png" alt="K-BRAIN"
+                style="filter: brightness(0) invert(1); height: 28px; width: auto;">
+        </div>
+        <h1 class="list-page-title">AI Insight Reports</h1>
+        <p class="list-page-desc">최신 AI 동향과 인사이트를 전해드립니다.</p>
+    </header>
+
+    <main class="board-container">
+        <div class="list-controls">
+            <div class="board-tabs">
+                <button class="tab-btn active" id="tabDaily">Daily Reports</button>
+                <button class="tab-btn" id="tabWeekly">Weekly Reports</button>
+            </div>
+            <div class="search-box">
+                <input type="date" id="startDate" title="시작일" />
+                <span>~</span>
+                <input type="date" id="endDate" title="종료일" />
+                <input type="text" id="searchInput" placeholder="리포트 제목 검색..." />
+            </div>
+        </div>
+
+        <!-- Daily List -->
+        <div id="dailyGrid" class="report-grid">
+            <!-- JS will populate daily cards here -->
+        </div>
+        <div id="dailyPagination" class="pagination"></div>
+
+        <!-- Weekly List -->
+        <div id="weeklyGrid" class="report-grid" style="display: none;">
+            <!-- JS will populate weekly cards here -->
+        </div>
+        <div id="weeklyPagination" class="pagination" style="display: none;"></div>
+
+        <!-- Error/Empty State -->
+        <div id="errorState" style="display: none; text-align: center; padding: 60px 0; color: var(--text-muted);">
+            <p>표시할 리포트가 없습니다.</p>
+        </div>
+    </main>
+
+    <script src="./viewer.js"></script>
+    <script>
+        // 페이지 초기화 로직은 viewer.js 내부에서 처리됨 (라우팅 분리)
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof initViewerList === 'function') {
+                initViewerList(); // viewer.js에 정의할 리스트 초기화 함수
+            }
+        });
+    </script>
+</body>
+
+</html>

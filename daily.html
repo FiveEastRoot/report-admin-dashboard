@@ -7,6 +7,8 @@
   <title>리포트 관리자 대시보드 — Daily Report Admin</title>
   <meta name="description" content="일간 리포트 검토·편집·이미지 처리 및 최종 발행 관리 대시보드" />
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.min.js"></script>
+  <script src="https://unpkg.com/mjml-browser@4.14.1/lib/index.js"></script>
 </head>
 
 <body>
@@ -349,6 +351,10 @@
         <span id="generateBtnText">AI 본문 생성</span>
       </button>
       <div class="btn-divider"></div>
+      <button class="btn btn-save" id="btnEmailPreview" title="메일 추출" disabled>
+        <span>✉</span>
+        메일 추출
+      </button>
       <div class="btn-divider"></div>
       <button class="btn btn-save" id="btnUnpublish" title="Ready로 되돌리기"
         style="display:none; background:var(--bg-glass); color:#f87171; border: 1px solid rgba(248,113,113,0.3);">
@@ -359,6 +365,33 @@
         <span></span>
         최종 발행
       </button>
+    </div>
+  </div>
+
+  <!-- EMAIL PREVIEW MODAL -->
+  <div id="emailPreviewModal" class="preview-overlay">
+    <div class="email-modal">
+      <div class="email-modal-header">
+        <h3>📧 이메일 메일링 템플릿 추출</h3>
+        <button class="preview-close-btn" id="emailPreviewCloseBtn">✕ 닫기</button>
+      </div>
+      <div class="email-modal-body">
+        <div class="email-preview-pane">
+          <iframe id="emailPreviewIframe"></iframe>
+        </div>
+        <div class="email-code-pane">
+          <div class="email-code-header">Compiled HTML</div>
+          <textarea id="emailHtmlOutput" readonly></textarea>
+        </div>
+      </div>
+      <div class="email-modal-footer">
+        <button class="btn btn-save" id="btnDownloadEmail">
+          <span>⬇</span> HTML 다운로드
+        </button>
+        <button class="btn btn-publish" id="btnCopyEmail">
+          <span>📋</span> 코드 복사
+        </button>
+      </div>
     </div>
   </div>
 
