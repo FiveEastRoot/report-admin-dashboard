@@ -997,7 +997,6 @@ const mjmlTemplateWeekly = `
     </mj-column></mj-section>
     {{#if Img_Cover}}<mj-section padding="20px 20px 32px 20px"><mj-column><mj-image src="{{Img_Cover}}" border-radius="16px" /></mj-column></mj-section>{{/if}}
     {{#if Point_Def}}
-    {{#if Point_Def}}
     <mj-section padding="0 20px 12px 20px"><mj-column><mj-text font-size="18px" font-weight="800" color="#44A4FF" padding-bottom="12px"><span style="color:#39E6FD; margin-right:6px;">●</span> 핵심 정의</mj-text></mj-column></mj-section>
     <mj-section padding="0 20px 32px 20px"><mj-column background-color="#FFFFFF" border="1px solid #E5E7EB" border-radius="12px" css-class="highlight-box"><mj-text font-size="16px" color="#1F2937" padding="18px">{{{Point_Def}}}</mj-text></mj-column></mj-section>
     {{/if}}
