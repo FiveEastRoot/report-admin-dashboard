@@ -708,7 +708,7 @@ img {
 ------------------------------------------------------------------------- */
 .list-page-header {
     text-align: center;
-    padding: 60px 20px;
+    padding: 40px 20px;
     background: linear-gradient(135deg, var(--color-dark), #031B33);
     color: white;
     margin-bottom: 40px;
