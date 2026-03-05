@@ -1239,10 +1239,14 @@ body {
 }
 
 .preview-content {
-  width: 720px;
-  max-width: calc(100vw - 40px);
-  margin: 68px auto 60px;
+  width: calc(100vw - 40px);
+  max-width: 1200px;
+  height: calc(100vh - 80px);
+  margin: 64px auto 20px;
   animation: slideIn 0.3s ease both;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
 /* Preview header block */
