@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daily Report Viewer</title>
+    <link rel="stylesheet" href="./viewer.css" />
+</head>
+
+<body>
+
+    <!-- Loading State -->
+    <div id="loader" class="viewer-loader">
+        <div class="spinner"></div>
+        <div style="font-weight: 600; color: var(--color-dark);">리포트를 불러오는 중...</div>
+    </div>
+
+    <div class="viewer-container" style="display: none;" id="viewerContent">
+
+        <!-- Header -->
+        <header class="viewer-header">
+            <div class="header-nav" style="text-align: left; margin-bottom: 20px;">
+                <a href="./viewer_list.html" class="btn-back-list">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round"
+                        style="margin-right: 4px; display: inline-block; vertical-align: middle;">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    목록으로 돌아가기
+                </a>
+            </div>
+
+            <div class="header-center-info">
+                <div class="report-type-title">Insight Daily</div>
+                <div class="report-date-badge" id="reportDate">YYYY-MM-DD</div>
+            </div>
+            <h1 class="report-title" id="val_Headline">Headline Title Goes Here</h1>
+        </header>
+
+        <!-- Cover Image -->
+        <div class="report-cover" id="wrap_Img_Cover" style="display: none;">
+            <img id="val_Img_Cover" src="" alt="Cover Image" />
+        </div>
+
+        <!-- Head Desc -->
+        <div class="report-desc-wrap" id="wrap_Head_Desc"
+            style="display: none; margin-bottom: 48px; text-align: center;">
+            <p class="report-desc" id="val_Head_Desc">This is a short description of the daily report content.</p>
+        </div>
+
+        <!-- Body Sections -->
+        <main>
+
+            <!-- Img_Sec1 -->
+            <div class="section-image" id="wrap_Img_Sec1" style="display: none;">
+                <img id="val_Img_Sec1" src="" alt="Section 1" />
+            </div>
+
+            <!-- Why Important -->
+            <section class="report-section" id="sec_Why_Imp" style="display: none;">
+                <div class="section-label">왜 중요한가</div>
+                <div class="section-content highlight-box" id="val_Why_Imp"></div>
+            </section>
+
+            <!-- Point Now -->
+            <section class="report-section" id="sec_Point_Now" style="display: none;">
+                <div class="section-label">지금 주목할 포인트</div>
+                <div class="section-content" id="val_Point_Now"></div>
+            </section>
+
+            <!-- Included Curation Articles (Category Grouped) -->
+            <section class="curation-area" id="sec_Articles" style="display: none;">
+                <!-- The JS will dynamically create category headings (e.g. AI·데이터 트렌드) and put article cards inside -->
+                <div class="curation-list" id="val_Articles">
+                </div>
+            </section>
+
+            <!-- Img_Sec2 -->
+            <div class="section-image" id="wrap_Img_Sec2" style="display: none; margin-top: 64px;">
+                <img id="val_Img_Sec2" src="" alt="Section 2" />
+            </div>
+
+            <!-- App Review -->
+            <section class="report-section" id="sec_App_Review" style="display: none;">
+                <div class="section-label">앱 리뷰</div>
+                <div class="section-content" id="val_App_Review"></div>
+            </section>
+
+            <!-- App Prep -->
+            <section class="report-section" id="sec_App_Prep" style="display: none;">
+                <div class="section-label">준비 사항</div>
+                <div class="section-content" id="val_App_Prep"></div>
+            </section>
+
+            <!-- App Point -->
+            <section class="report-section" id="sec_App_Point" style="display: none;">
+                <div class="section-label">핵심 적용</div>
+                <div class="section-content" id="val_App_Point"></div>
+            </section>
+
+            <!-- Img_Sec3 -->
+            <div class="section-image" id="wrap_Img_Sec3" style="display: none;">
+                <img id="val_Img_Sec3" src="" alt="Section 3" />
+            </div>
+
+            <!-- Section Note -->
+            <section class="report-section" id="sec_Section_Note" style="display: none;">
+                <div class="section-content section-note" id="val_Section_Note"></div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="./viewer.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof initDailyViewer === 'function') {
+                initDailyViewer();
+            }
+        });
+    </script>
+</body>
+
+</html>

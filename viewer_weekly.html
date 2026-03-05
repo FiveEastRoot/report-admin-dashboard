@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weekly Report Viewer</title>
+    <link rel="stylesheet" href="./viewer.css" />
+</head>
+
+<body>
+
+    <!-- Loading State -->
+    <div id="loader" class="viewer-loader">
+        <div class="spinner"></div>
+        <div style="font-weight: 600; color: var(--color-dark);">리포트를 불러오는 중...</div>
+    </div>
+
+    <div class="viewer-container" style="display: none;" id="viewerContent">
+
+        <!-- Header -->
+        <header class="viewer-header">
+            <div class="header-nav" style="text-align: left; margin-bottom: 20px;">
+                <a href="./viewer_list.html" class="btn-back-list">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round"
+                        style="margin-right: 4px; display: inline-block; vertical-align: middle;">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    목록으로 돌아가기
+                </a>
+            </div>
+
+            <div class="header-center-info">
+                <div class="report-type-title">Insight Weekly</div>
+                <div class="report-date-badge" id="reportDate">YYYY-MM-DD</div>
+            </div>
+            <h1 class="report-title" id="val_Headline">Headline Title Goes Here</h1>
+        </header>
+
+        <!-- Cover Image -->
+        <div class="report-cover" id="wrap_Img_Cover" style="display: none;">
+            <img id="val_Img_Cover" src="" alt="Cover Image" />
+        </div>
+
+        <!-- Head Desc -->
+        <div class="report-desc-wrap" id="wrap_Head_Desc"
+            style="display: none; margin-bottom: 48px; text-align: center;">
+            <p class="report-desc" id="val_Head_Desc">This is a short description of the weekly report content.</p>
+        </div>
+
+        <!-- Body Sections -->
+        <main>
+
+            <!-- Img_Sec1 -->
+            <div class="section-image" id="wrap_Img_Sec1" style="display: none;">
+                <img id="val_Img_Sec1" src="" alt="Section Image" />
+            </div>
+
+            <!-- Context Change -->
+            <section class="report-section" id="sec_Context_Chg" style="display: none;">
+                <div class="section-label">맥락 변화</div>
+                <div class="section-content highlight-box" id="val_Context_Chg"></div>
+            </section>
+
+            <!-- Point Definition -->
+            <section class="report-section" id="sec_Point_Def" style="display: none;">
+                <div class="section-label">주요 포인트</div>
+                <div class="section-content" id="val_Point_Def"></div>
+            </section>
+
+            <!-- Included Curation Articles (Category Grouped) -->
+            <section class="curation-area" id="sec_Articles" style="display: none;">
+                <div class="curation-list" id="val_Articles">
+                </div>
+            </section>
+
+            <!-- Img_Sec2 -->
+            <div class="section-image" id="wrap_Img_Sec2" style="display: none;">
+                <img id="val_Img_Sec2" src="" alt="Section Image" />
+            </div>
+
+            <!-- Body Flow -->
+            <section class="report-section" id="sec_Body_Flow" style="display: none;">
+                <div class="section-content" id="val_Body_Flow"></div>
+            </section>
+
+            <!-- Img_Body_Mid -->
+            <div class="section-image" id="wrap_Img_Body_Mid" style="display: none;">
+                <img id="val_Img_Body_Mid" src="" alt="Section Image" />
+            </div>
+
+            <!-- Body Issues -->
+            <section class="report-section" id="sec_Body_Issues" style="display: none;">
+                <div class="section-label">주요 이슈</div>
+                <div class="section-content" id="val_Body_Issues"></div>
+            </section>
+
+            <!-- Body 3 Key -->
+            <section class="report-section" id="sec_Body_3Key" style="display: none;">
+                <div class="section-label">핵심 요약</div>
+                <div class="section-content" id="val_Body_3Key"></div>
+            </section>
+
+            <!-- Img_Sec3 -->
+            <div class="section-image" id="wrap_Img_Sec3" style="display: none;">
+                <img id="val_Img_Sec3" src="" alt="Section Image" />
+            </div>
+
+            <!-- App Question -->
+            <section class="report-section" id="sec_App_Question" style="display: none;">
+                <div class="section-label">적용 질문</div>
+                <div class="section-content" id="val_App_Question"></div>
+            </section>
+
+            <!-- App Predict -->
+            <section class="report-section" id="sec_App_Predict" style="display: none;">
+                <div class="section-label">향후 전망</div>
+                <div class="section-content" id="val_App_Predict"></div>
+            </section>
+
+            <!-- Source List -->
+            <section class="report-section" id="sec_Source_List" style="display: none;">
+                <div class="section-label">출처</div>
+                <div class="section-content section-note" id="val_Source_List"></div>
+            </section>
+
+            <!-- Section Note -->
+            <section class="report-section" id="sec_Section_Note" style="display: none;">
+                <div class="section-content section-note" id="val_Section_Note"></div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="./viewer.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof initWeeklyViewer === 'function') {
+                initWeeklyViewer();
+            }
+        });
+    </script>
+</body>
+
+</html>
