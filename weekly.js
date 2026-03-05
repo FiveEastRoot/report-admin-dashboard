@@ -986,7 +986,13 @@ const mjmlTemplateWeekly = `
       <mj-all font-family="-apple-system, BlinkMacSystemFont, 'Pretendard', sans-serif" color="#1F2937" />
       <mj-section padding="0" /><mj-column padding="0" /><mj-text padding="0" line-height="1.6" /><mj-image padding="0" />
     </mj-attributes>
-    <mj-style inline="inline">.highlight-box { border-left: 4px solid #453FE8 !important; }</mj-style>
+    <mj-style inline="inline">
+      .highlight-box { border-left: 4px solid #453FE8 !important; }
+      .promo-banner { background: linear-gradient(135deg, #453FE8 0%, #7E79FF 100%); border-radius: 16px; padding: 24px; color: #FFFFFF; }
+      .promo-content h3 { margin: 0 0 8px 0; font-size: 20px; font-weight: 800; }
+      .promo-content p { margin: 0 0 16px 0; font-size: 15px; opacity: 0.9; line-height: 1.5; }
+      .promo-btn { display: inline-block; background-color: #FFFFFF; color: #453FE8; padding: 10px 20px; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 14px; }
+    </mj-style>
   </mj-head>
   <mj-body background-color="#FAFAFA" width="700px">
     <mj-section padding="40px 20px 0px 20px">
@@ -1024,8 +1030,10 @@ const mjmlTemplateWeekly = `
     {{/if}}
     {{#if Section_Note}}
     <mj-section padding="20px 20px 48px 20px">
-      <mj-column background-color="#F3F4F6" border-radius="12px">
-        <mj-text font-size="14px" color="#4B5563" padding="20px" line-height="1.6">{{{Section_Note}}}</mj-text>
+      <mj-column>
+        <mj-text padding="0">
+          {{{Section_Note}}}
+        </mj-text>
       </mj-column>
     </mj-section>
     {{/if}}

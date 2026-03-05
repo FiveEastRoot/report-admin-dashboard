@@ -987,6 +987,10 @@ const mjmlTemplateDaily = `
     <mj-style inline="inline">
       .highlight-box { border-left: 4px solid #453FE8 !important; }
       .tag { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; background-color: #EFF6FF; color: #2563EB; }
+      .promo-banner { background: linear-gradient(135deg, #453FE8 0%, #7E79FF 100%); border-radius: 16px; padding: 24px; color: #FFFFFF; }
+      .promo-content h3 { margin: 0 0 8px 0; font-size: 20px; font-weight: 800; }
+      .promo-content p { margin: 0 0 16px 0; font-size: 15px; opacity: 0.9; line-height: 1.5; }
+      .promo-btn { display: inline-block; background-color: #FFFFFF; color: #453FE8; padding: 10px 20px; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 14px; }
     </mj-style>
   </mj-head>
   <mj-body background-color="#FAFAFA" width="700px">
@@ -1056,8 +1060,10 @@ const mjmlTemplateDaily = `
 
     {{#if Section_Note}}
     <mj-section padding="20px 20px 48px 20px">
-      <mj-column background-color="#F3F4F6" border-radius="12px">
-        <mj-text font-size="14px" color="#4B5563" padding="20px" line-height="1.6">{{{Section_Note}}}</mj-text>
+      <mj-column>
+        <mj-text padding="0">
+          {{{Section_Note}}}
+        </mj-text>
       </mj-column>
     </mj-section>
     {{/if}}
