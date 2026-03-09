@@ -984,6 +984,13 @@ async function downloadWebHtml() {
   const doc = iframe.contentDocument;
   let htmlContent = doc.documentElement.outerHTML;
 
+  // Use DOMParser to manipulate htmlContent and remove "Back to List" button
+  const parser = new DOMParser();
+  const tempDoc = parser.parseFromString(htmlContent, 'text/html');
+  const nav = tempDoc.querySelector('.header-nav');
+  if (nav) nav.remove();
+  htmlContent = tempDoc.documentElement.outerHTML;
+
   // Try to inline viewer.css for a self-contained file
   try {
     const cssRes = await fetch('./viewer.css');
