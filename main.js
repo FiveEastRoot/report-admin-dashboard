@@ -9,6 +9,7 @@ const DOM = {
     weeklyList: document.getElementById('weeklyList'),
     loadingOverlay: document.getElementById('loadingOverlay'),
     searchInput: document.getElementById('searchInput'),
+    btnRunCrawler: document.getElementById('btnRunCrawler'),
 };
 
 let dashboardData = { daily: [], weekly: [] };
@@ -67,6 +68,36 @@ function renderAll(filterQuery = '') {
 if (DOM.searchInput) {
     DOM.searchInput.addEventListener('input', (e) => {
         renderAll(e.target.value.trim());
+    });
+}
+
+if (DOM.btnRunCrawler) {
+    DOM.btnRunCrawler.addEventListener('click', async () => {
+        if (!confirm('새로운 크롤링 작업을 실행하시겠습니까?\n(수집 데이터가 구글 시트에 업데이트됩니다.)')) return;
+
+        showLoading();
+        document.getElementById('loadingLabel').innerText = 'GitHub 크롤러 실행 요청 중...';
+
+        try {
+            const res = await fetch(CONFIG.GAS_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ action: 'TRIGGER_CRAWLER', payload: {} }),
+                redirect: 'follow',
+            });
+
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const json = await res.json();
+            if (!json.success) throw new Error(json.error || 'Server Error');
+
+            alert('크롤러 실행 요청 성공! 🚀\n잠시 후 GitHub Actions 탭에서 진행 상황을 확인하세요.');
+        } catch (err) {
+            console.error(err);
+            alert('크롤러 실행 요청 실패:\n' + err.message);
+        } finally {
+            document.getElementById('loadingLabel').innerText = '리포트 현황을 불러오는 중...';
+            hideLoading();
+        }
     });
 }
 
