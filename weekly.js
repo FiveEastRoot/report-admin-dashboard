@@ -13,7 +13,7 @@
 const CONFIG = {
   // 직접 브라우저에서 GAS 접근 (text/plain 을 이용해 Preflight 우회, 502 Timeout 방지)
   GAS_URL: 'https://script.google.com/macros/s/AKfycbygxB_Xd7VyET-QKtaP1PqRno7XuTkaVKFW2vmDSQ1wD3FMoA_XEmKCFMqPE3YvBSc_/exec',
-  R2_UPLOAD_URL: 'https://dashboard-image-upload.geun9265.workers.dev/',
+  R2_UPLOAD_URL: 'https://k-brain-admin-dashboard-image-upload.kbrainc7.workers.dev/',
   POLL_INTERVAL_MS: 5000,        // AI 생성 폴링 주기 (5초)
   POLL_TIMEOUT_MS: 150000,      // 최대 대기 시간 (2.5분)
 };
