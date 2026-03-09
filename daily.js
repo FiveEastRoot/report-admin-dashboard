@@ -973,6 +973,43 @@ if (previewOverlay) {
   });
 }
 
+/** Web HTML Download logic */
+async function downloadWebHtml() {
+  const iframe = document.getElementById('previewIframe');
+  if (!iframe || !iframe.contentDocument) {
+    showToast('미리보기 창이 열려있지 않습니다.', 'error');
+    return;
+  }
+
+  const doc = iframe.contentDocument;
+  let htmlContent = doc.documentElement.outerHTML;
+
+  // Try to inline viewer.css for a self-contained file
+  try {
+    const cssRes = await fetch('./viewer.css');
+    if (cssRes.ok) {
+      const cssText = await cssRes.text();
+      // Replace the link tag with a style tag
+      htmlContent = htmlContent.replace(/<link rel="stylesheet" href="\.\/viewer\.css">/g, `<style>${cssText}</style>`);
+    }
+  } catch (e) {
+    console.warn('Failed to inline viewer.css, downloading with relative link:', e);
+  }
+
+  const dateStr = DOM.reportDate.value.replace(/-/g, '');
+  const fileName = `Insight_Daily_Web_${dateStr}.html`;
+
+  const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = fileName;
+  a.click();
+  showToast('웹 HTML 다운로드 시작', 'success');
+}
+
+const btnDownloadWebHtml = document.getElementById('btnDownloadWebHtml');
+if (btnDownloadWebHtml) btnDownloadWebHtml.addEventListener('click', downloadWebHtml);
+
 // PC / Mobile device toggle
 document.querySelectorAll('.device-btn').forEach(btn => {
   btn.addEventListener('click', () => {
