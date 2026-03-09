@@ -40,7 +40,7 @@ export default {
 
             // 5. R2 커스텀 도메인(공용 URL) 반환
             // *주의: 발급받은 본인의 R2 공용 도메인으로 변경해야 합니다.
-            const publicUrl = `https://<본인의.R2.공용.도메인.com>/${fileName}`;
+            const publicUrl = `https://pub-bf359da32713477cade8c5c3a5a94e41.r2.dev/${fileName}`;
 
             return new Response(JSON.stringify({ success: true, url: publicUrl }), {
                 status: 200,
