@@ -948,7 +948,6 @@ async function openPreview() {
   }
 
   // Simply load the actual viewer page in the iframe.
-  // The viewer page has its own CSS, JS, and fetches saved data from the API.
   iframe.removeAttribute('srcdoc');
   iframe.src = './viewer_weekly.html?week=' + encodeURIComponent(currentVal);
 }
@@ -995,36 +994,37 @@ async function downloadWebHtml() {
   // 2. Remove all script tags
   doc.querySelectorAll('script').forEach(s => s.remove());
   
-  // 3. Simple Style Inliner (Literal values based on viewer.css)
+  // 3. Simple Style Inliner (Refined design based on user example)
   const styleMap = {
-    '.viewer-container': 'max-width: 800px; margin: 0 auto; padding: 20px 12px 48px; font-family: -apple-system, BlinkMacSystemFont, "Pretendard", sans-serif; background-color: #FAFAFA; color: #1F2937; line-height: 1.7;',
-    '.viewer-header': 'text-align: center; margin-bottom: 40px; padding-top: 16px;',
-    '.report-type-title': 'font-size: 24px; font-weight: 800; color: #002D54; margin-bottom: 8px;',
-    '.report-date-badge': 'display: inline-block; background: rgba(69, 63, 232, 0.08); color: #453FE8; padding: 6px 16px; border-radius: 99px; font-weight: 700; font-size: 14px;',
-    '.report-title': 'font-size: 32px; font-weight: 800; color: #002D54; line-height: 1.3; margin-bottom: 16px; word-break: keep-all;',
-    '.report-desc': 'font-size: 17px; color: #6B7280; line-height: 1.6; max-width: 90%; margin: 0 auto; word-break: keep-all;',
-    '.report-cover': 'width: 100%; border-radius: 16px; overflow: hidden; margin-bottom: 24px; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);',
-    '.report-cover img': 'width: 100%; height: auto; display: block; border-radius: 16px;',
-    '.report-section': 'margin-bottom: 32px;',
-    '.section-label': 'font-size: 19px; font-weight: 800; color: #44A4FF; margin-bottom: 12px; display: block;',
-    '.section-content': 'font-size: 16px; color: #1F2937; white-space: pre-wrap; word-break: keep-all; background: #FFFFFF; padding: 20px; border-radius: 12px; border: 1px solid rgba(0, 45, 84, 0.08);',
-    '.section-content.highlight-box': 'border-left: 4px solid #453FE8; background: #F8FAFF;',
-    '.section-image': 'margin: 24px 0; border-radius: 12px; overflow: hidden;',
-    '.section-image img': 'width: 100%; height: auto; display: block; border-radius: 12px;',
-    '.curation-area': 'margin-top: 48px;',
-    '.category-heading': 'font-size: 20px; font-weight: 800; color: #002D54; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #002D54;',
-    '.premium-article-card': 'display: flex; background: #FFFFFF; border-radius: 12px; border: 1px solid #E5E7EB; overflow: hidden; margin-bottom: 20px; text-decoration: none; color: inherit;',
-    '.premium-article-card.minimal .card-content': 'padding: 16px 20px;',
-    '.card-content': 'flex: 1; padding: 16px 20px; min-width: 0;',
-    '.card-title': 'font-size: 17px; font-weight: 800; color: #111827; margin-bottom: 8px; line-height: 1.4;',
-    '.card-summary': 'background-color: #F8FAFC; padding: 12px; border-radius: 8px; margin-bottom: 12px;',
-    '.summary-text': 'font-size: 14px; color: #4B5563; line-height: 1.5;',
-    '.card-footer': 'display: flex; justify-content: flex-end; padding-top: 10px; border-top: 1px dashed #E5E7EB;',
-    '.btn-read': 'display: inline-block; background-color: #FFFFFF; color: #453FE8; border: 1px solid #453FE8; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 700;',
-    '.section-note': 'font-size: 14px; color: #6B7280; padding: 0; border: none; background: transparent;',
-    '.source-link-item': 'display: block; padding: 10px 14px; background: rgba(0, 45, 84, 0.03); border-radius: 8px; text-decoration: none; color: #1F2937; margin-bottom: 8px; border: 1px solid rgba(0, 45, 84, 0.05);',
-    '.source-title': 'font-weight: 700; font-size: 14px; display: block;',
-    '.source-url': 'font-size: 12px; color: #6B7280; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;',
+    '.viewer-container': 'max-width: 860px; margin: 0 auto; padding: 24px 14px 60px; font-family: Arial, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; background-color: #f5f7fb; color: #1f2937; line-height: 1.7;',
+    '.viewer-header': 'text-align: center; padding: 20px 16px 28px;',
+    '.report-type-title': 'font-size: 26px; font-weight: 800; color: #002d54; margin-bottom: 10px;',
+    '.report-date-badge': 'display: inline-block; background: #eef2ff; color: #453fe8; padding: 7px 16px; border-radius: 999px; font-size: 14px; font-weight: 700; margin-bottom: 18px;',
+    '.report-title': 'margin: 0; font-size: 34px; line-height: 1.35; color: #002d54; font-weight: 800; word-break: keep-all;',
+    '.report-desc': 'margin: 0 auto; max-width: 720px; font-size: 18px; color: #6b7280; word-break: keep-all;',
+    '.report-cover': 'background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,45,84,0.08); margin-bottom: 24px;',
+    '.report-cover img': 'display: block; width: 100%; height: auto;',
+    '.report-section': 'margin-bottom: 30px;',
+    '.section-label': 'font-size: 22px; font-weight: 800; color: #44a4ff; margin: 0 0 10px; display: block;',
+    '.section-content': 'background: #ffffff; border: 1px solid #dbe4f0; border-radius: 16px; padding: 18px 20px; box-shadow: 0 4px 18px rgba(0,45,84,0.04); font-size: 16px; color: #1f2937; white-space: pre-wrap; word-break: keep-all;',
+    '.section-content.highlight-box': 'border-left: 5px solid #453fe8;',
+    '.section-image': 'margin-bottom: 22px; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,45,84,0.06);',
+    '.section-image img': 'display: block; width: 100%; height: auto;',
+    '.curation-area': 'margin: 50px 0 24px;',
+    '.category-heading': 'font-size: 20px; font-weight: 800; color: #059669; border-bottom: 2px solid #059669; padding-bottom: 10px; margin-bottom: 16px;',
+    '.premium-article-card': 'background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 18px; margin-bottom: 16px; text-decoration: none; color: inherit; display: flex; flex-direction: column; overflow: hidden;',
+    '.card-thumb': 'width: 100%; height: auto; border-radius: 12px; overflow: hidden; margin-bottom: 14px;',
+    '.card-thumb img': 'display: block; width: 100%; height: auto;',
+    '.card-content': 'padding: 0; min-width: 0;',
+    '.card-title': 'font-size: 20px; font-weight: 800; color: #111827; margin-bottom: 12px;',
+    '.card-summary': 'background: #f8fafc; border-radius: 12px; padding: 14px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px;',
+    '.summary-item': 'display: block;',
+    '.badge': 'display: inline-block; font-size: 12px; font-weight: 700; background: #ecfdf5; color: #059669; padding: 4px 10px; border-radius: 999px; margin-right: 6px; margin-bottom: 6px;',
+    '.summary-text': 'font-size: 15px; color: #1f2937; line-height: 1.5;',
+    '.source-links': 'background: #f1f5f9; padding: 12px; border-radius: 10px; margin-top: 10px; font-size: 13px;',
+    '.card-footer': 'display: flex; justify-content: flex-end; padding-top: 14px; border-top: 1px dashed #e5e7eb; margin-top: 10px;',
+    '.btn-read': 'display: inline-block; background: #453fe8; color: #ffffff; text-decoration: none; padding: 11px 18px; border-radius: 10px; font-weight: 700;',
+    '.section-note': 'font-size: 14px; color: #6b7280; padding: 0; border: none; background: transparent;',
   };
 
   Object.entries(styleMap).forEach(([selector, style]) => {
@@ -1037,8 +1037,7 @@ async function downloadWebHtml() {
   // 4. Hide elements that are still hidden in the preview
   doc.querySelectorAll('[style*="display: none"]').forEach(el => el.remove());
 
-  let htmlContent = doc.documentElement.outerHTML;
-
+  const htmlContent = doc.documentElement.outerHTML;
   const dateStr = DOM.reportDate.value.replace(/-/g, '');
   const fileName = `Insight_Weekly_Web_${dateStr}.html`;
 
