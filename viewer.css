@@ -430,6 +430,19 @@ img {
     color: var(--color-primary);
 }
 
+.source-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow: hidden;
+    flex: 1; /* Added to take remaining space */
+}
+
+/* Fix for Weekly source links appearing broken/underlined */
+.source-list-links a {
+    text-decoration: none !important;
+}
+
 .section-image {
     margin: 24px 0;
     border-radius: 12px;
@@ -531,21 +544,84 @@ img {
 .premium-article-card {
     display: flex;
     background: var(--bg-card);
-    border-radius: 12px;
+    border-radius: 20px; /* More rounded as per design */
     border: 1px solid #E5E7EB;
     overflow: hidden;
     cursor: pointer;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: var(--transition);
 }
 
 .premium-article-card:hover {
     transform: translateY(-4px);
-    border-color: #CBD5E1;
-    box-shadow: 0 16px 32px rgba(0, 45, 84, 0.08);
+    border-color: var(--color-primary);
+    box-shadow: 0 16px 32px rgba(69, 63, 232, 0.08);
+}
+
+.card-top {
+    margin-bottom: 16px;
+}
+
+.card-tags {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.card-tags .tag {
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 8px;
+}
+
+.card-summary-v2 {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.summary-box {
+    background-color: #F8FAFC;
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.box-label {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--color-primary);
+    margin-bottom: 8px;
+}
+
+.box-content {
+    font-size: 15px;
+    color: #1F2937;
+    line-height: 1.6;
+}
+
+.summary-ul {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.summary-ul li {
+    margin-bottom: 4px;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #F1F5F9;
+    padding-top: 16px;
+    margin-top: auto;
 }
 
 /* Minimal Card for Weekly */
 .premium-article-card.minimal .card-content {
-    padding: 20px;
+    padding: 24px;
 }
 
 .premium-article-card.minimal .card-title {

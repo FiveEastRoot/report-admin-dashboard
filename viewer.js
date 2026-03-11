@@ -394,32 +394,51 @@ function renderReport(report, articles, type) {
                     const tagsHtml = tagsList.map(t => `<span class="tag ${catId.toLowerCase()}">${escapeHtml(t)}</span>`).join('');
                     const cardClass = isWeekly ? 'premium-article-card minimal' : 'premium-article-card';
 
+                    // Parse Key Point as bullet list if it contains newlines or starts with '-'
+                    let keyPointHtml = '';
+                    const kpText = art.Key_Point || '';
+                    if (kpText.includes('\n') || kpText.trim().startsWith('-')) {
+                        const lines = kpText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                        keyPointHtml = '<ul class="summary-ul">';
+                        lines.forEach(line => {
+                            const content = line.startsWith('-') ? line.substring(1).trim() : line;
+                            keyPointHtml += `<li>${escapeHtml(content)}</li>`;
+                        });
+                        keyPointHtml += '</ul>';
+                    } else {
+                        keyPointHtml = `<p class="summary-text">${escapeHtml(kpText)}</p>`;
+                    }
+
                     artHtml += `
                         <div class="${cardClass}" onclick="window.open('${art.Link || '#'}', '_blank')">
                             ${thumbHtml}
                             <div class="card-content">
-                                <div class="card-meta">
+                                <div class="card-top">
                                     <div class="card-tags">
                                         ${tagsHtml}
                                     </div>
+                                    <h4 class="card-title">${escapeHtml(art.Subtitle || art.Title_Org || '(제목없음)')}</h4>
                                 </div>
-                                <h4 class="card-title">${escapeHtml(art.Subtitle || art.Title_Org || '(제목없음)')}</h4>
                                 
-                                <div class="card-summary">
-                                    <div class="summary-item">
-                                        <span class="badge badge-content">내용</span>
-                                        <p class="summary-text">${escapeHtml(art.Core_Content || '')}</p>
+                                <div class="card-summary-v2">
+                                    <div class="summary-box">
+                                        <div class="box-label">내용</div>
+                                        <div class="box-content">
+                                            <p class="summary-text">${escapeHtml(art.Core_Content || '')}</p>
+                                        </div>
                                     </div>
-                                    <div class="summary-item">
-                                        <span class="badge badge-keypoint">의의</span>
-                                        <p class="summary-text">${escapeHtml(art.Key_Point || '')}</p>
+                                    <div class="summary-box">
+                                        <div class="box-label">의의</div>
+                                        <div class="box-content">
+                                            ${keyPointHtml}
+                                        </div>
                                     </div>
                                 </div>
                                 
                                 <div class="card-footer">
-                                    <span class="card-source">${escapeHtml(art.Source_Name || '출처 불명')}</span>
+                                    <span class="card-source">출처: ${escapeHtml(art.Source_Name || '출처 불명')}</span>
                                     <button class="btn-read" onclick="event.stopPropagation(); window.open('${art.Link || '#'}', '_blank')">
-                                        원문 이동 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px;"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                        원문 이동
                                     </button>
                                 </div>
                             </div>
