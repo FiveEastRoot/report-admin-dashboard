@@ -1011,19 +1011,21 @@ async function downloadWebHtml() {
     '.section-image img': 'display: block; width: 100%; height: auto;',
     '.curation-area': 'margin: 50px 0 24px;',
     '.category-heading': 'font-size: 20px; font-weight: 800; color: #059669; border-bottom: 2px solid #059669; padding-bottom: 10px; margin-bottom: 16px;',
-    '.premium-article-card': 'background: #ffffff; border: 1px solid #e5e7eb; border-radius: 20px; padding: 24px; margin-bottom: 24px; text-decoration: none; color: inherit; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);',
-    '.card-content': 'padding: 0; min-width: 0; display: flex; flex-direction: column;',
-    '.card-top': 'margin-bottom: 16px;',
+    '.premium-article-card': 'background: #ffffff; border: 1px solid #e5e7eb; border-radius: 20px; padding: 0; margin-bottom: 24px; text-decoration: none; color: inherit; display: flex; flex-direction: row; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);',
+    '.card-thumb-left': 'width: 300px; flex-shrink: 0; overflow: hidden; background: #f1f5f9;',
+    '.card-thumb-left img': 'width: 100%; height: 100%; object-fit: cover; display: block;',
+    '.card-right-content': 'flex: 1; padding: 32px; display: flex; flex-direction: column; min-width: 0;',
+    '.card-top': 'margin-bottom: 20px;',
     '.card-tags': 'display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;',
     '.tag': 'display: inline-block; font-size: 13px; font-weight: 700; background: #f3f4f6; color: #6b7280; padding: 6px 12px; border-radius: 8px;',
-    '.card-title': 'font-size: 20px; font-weight: 800; color: #111827; margin: 0 0 12px; line-height: 1.4;',
-    '.card-summary-v2': 'display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px;',
-    '.summary-box': 'background: #f8fafc; border-radius: 12px; padding: 16px;',
-    '.box-label': 'font-size: 14px; font-weight: 800; color: #453fe8; margin-bottom: 8px;',
-    '.box-content': 'font-size: 15px; color: #1f2937; line-height: 1.6;',
+    '.card-title': 'font-size: 24px; font-weight: 800; color: #111827; margin: 0 0 12px; line-height: 1.3;',
+    '.card-summary-v2': 'display: flex; flex-direction: column; gap: 20px; margin-bottom: 24px;',
+    '.summary-box': 'background: #f8fafc; border-radius: 12px; padding: 20px;',
+    '.box-label': 'font-size: 14px; font-weight: 800; color: #453fe8; margin-bottom: 10px;',
+    '.box-content': 'font-size: 16px; color: #1f2937; line-height: 1.7;',
     '.summary-text': 'margin: 0;',
-    '.summary-ul': 'margin: 0; padding-left: 18px;',
-    '.card-footer': 'display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid #f1f5f9; margin-top: auto;',
+    '.summary-ul': 'margin: 0; padding-left: 20px;',
+    '.card-footer': 'display: flex; justify-content: space-between; align-items: center; padding-top: 20px; border-top: 1px dashed #e5e7eb; margin-top: auto;',
     '.card-source': 'font-size: 13px; font-weight: 700; color: #9ca3af;',
     '.btn-read': 'display: inline-block; background: #453fe8; color: #ffffff; text-decoration: none; padding: 10px 18px; border-radius: 8px; font-weight: 700; font-size: 13px;',
     '.source-list-links': 'display: flex; flex-direction: column; gap: 12px;',
@@ -1036,7 +1038,7 @@ async function downloadWebHtml() {
     '.section-note': 'font-size: 14px; color: #6b7280; padding: 0; border: none; background: transparent;',
   };
 
-  // Restructure Article Cards for Refined Export Layout
+  // Restructure Article Cards for Refined Export Layout (Horizontal for Daily)
   doc.querySelectorAll('.premium-article-card').forEach(card => {
     const title = card.querySelector('.card-title')?.innerText || '';
     const tags = Array.from(card.querySelectorAll('.tag')).map(t => t.innerText);
@@ -1052,6 +1054,10 @@ async function downloadWebHtml() {
     });
 
     const source = card.querySelector('.card-source')?.innerText || '';
+    
+    // Extract Thumbnail
+    const thumbImg = card.querySelector('.card-thumb img');
+    const thumbUrl = thumbImg ? thumbImg.src : '';
 
     let keyPointHtml = '';
     if (keyPoint.includes('\n') || keyPoint.trim().startsWith('-')) {
@@ -1066,8 +1072,13 @@ async function downloadWebHtml() {
       keyPointHtml = `<p class="summary-text">${keyPoint}</p>`;
     }
 
+    const thumbHtml = thumbUrl 
+      ? `<div class="card-thumb-left"><img src="${thumbUrl}" alt="Thumbnail"></div>`
+      : '';
+
     card.innerHTML = `
-      <div class="card-content">
+      ${thumbHtml}
+      <div class="card-right-content">
         <div class="card-top">
           <div class="card-tags">
             ${tags.map(t => `<span class="tag">${t}</span>`).join('')}
@@ -1090,13 +1101,10 @@ async function downloadWebHtml() {
         </div>
         <div class="card-footer">
           <span class="card-source">${source.includes('출처:') ? source : '출처: ' + source}</span>
-          <div class="btn-read">원문 이동</div>
+          <div class="btn-read">원문 이동 →</div>
         </div>
       </div>
     `;
-    
-    // Remove original thumb if any
-    card.querySelector('.card-thumb')?.remove();
   });
 
   Object.entries(styleMap).forEach(([selector, style]) => {

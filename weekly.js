@@ -1034,7 +1034,6 @@ async function downloadWebHtml() {
     '.source-info': 'display: flex; flex-direction: column; gap: 4px; overflow: hidden; flex: 1;',
     '.source-title': 'font-weight: 700; font-size: 14px; display: block; color: #1f2937;',
     '.source-url': 'font-size: 12px; color: #6b7280; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;',
-    '.source-url': 'font-size: 12px; color: #6b7280; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;',
     '.section-note': 'font-size: 14px; color: #6b7280; padding: 0; border: none; background: transparent;',
   };
 
