@@ -377,10 +377,8 @@ function renderReport(report, articles, type) {
                 groupArticles.forEach(art => {
                     const isWeekly = type === 'Weekly';
 
-                    // 위클리는 이미지를 렌더링하지 않음
-                    const thumbHtml = (!isWeekly && art.Item_Thumb)
-                        ? `<div class="card-thumb"><img src="${art.Item_Thumb}" alt="기사 썸네일"></div>`
-                        : ``;
+                    // Unifying design: No thumbnails for both daily/weekly as per premium design
+                    const thumbHtml = '';
 
                     let tagsList = [];
                     if (art.Detailed_Tags) {
@@ -392,7 +390,7 @@ function renderReport(report, articles, type) {
                     }
 
                     const tagsHtml = tagsList.map(t => `<span class="tag ${catId.toLowerCase()}">${escapeHtml(t)}</span>`).join('');
-                    const cardClass = isWeekly ? 'premium-article-card minimal' : 'premium-article-card';
+                    const cardClass = 'premium-article-card'; // Unified class
 
                     // Parse Key Point as bullet list if it contains newlines or starts with '-'
                     let keyPointHtml = '';
