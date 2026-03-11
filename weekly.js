@@ -1034,8 +1034,72 @@ async function downloadWebHtml() {
     '.source-info': 'display: flex; flex-direction: column; gap: 4px; overflow: hidden; flex: 1;',
     '.source-title': 'font-weight: 700; font-size: 14px; display: block; color: #1f2937;',
     '.source-url': 'font-size: 12px; color: #6b7280; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;',
+    '.source-url': 'font-size: 12px; color: #6b7280; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;',
     '.section-note': 'font-size: 14px; color: #6b7280; padding: 0; border: none; background: transparent;',
   };
+
+  // Restructure Article Cards for Refined Export Layout
+  doc.querySelectorAll('.premium-article-card').forEach(card => {
+    const title = card.querySelector('.card-title')?.innerText || '';
+    const tags = Array.from(card.querySelectorAll('.tag')).map(t => t.innerText);
+    
+    // Find content and keypoint from original badge-based structure
+    let coreContent = '';
+    let keyPoint = '';
+    card.querySelectorAll('.summary-item').forEach(item => {
+      const badge = item.querySelector('.badge')?.innerText || '';
+      const text = item.querySelector('.summary-text')?.innerText || '';
+      if (badge.includes('내용')) coreContent = text;
+      if (badge.includes('의의')) keyPoint = text;
+    });
+
+    const source = card.querySelector('.card-source')?.innerText || '';
+
+    let keyPointHtml = '';
+    if (keyPoint.includes('\n') || keyPoint.trim().startsWith('-')) {
+      const lines = keyPoint.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      keyPointHtml = '<ul class="summary-ul">';
+      lines.forEach(line => {
+        const content = line.startsWith('-') ? line.substring(1).trim() : line;
+        keyPointHtml += `<li>${content}</li>`;
+      });
+      keyPointHtml += '</ul>';
+    } else {
+      keyPointHtml = `<p class="summary-text">${keyPoint}</p>`;
+    }
+
+    card.innerHTML = `
+      <div class="card-content">
+        <div class="card-top">
+          <div class="card-tags">
+            ${tags.map(t => `<span class="tag">${t}</span>`).join('')}
+          </div>
+          <h4 class="card-title">${title}</h4>
+        </div>
+        <div class="card-summary-v2">
+          <div class="summary-box">
+            <div class="box-label">내용</div>
+            <div class="box-content">
+              <p class="summary-text">${coreContent}</p>
+            </div>
+          </div>
+          <div class="summary-box">
+            <div class="box-label">의의</div>
+            <div class="box-content">
+              ${keyPointHtml}
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="card-source">${source.includes('출처:') ? source : '출처: ' + source}</span>
+          <div class="btn-read">원문 이동</div>
+        </div>
+      </div>
+    `;
+    
+    // Ensure thumbnails are gone for export (though weekly shouldn't have them)
+    card.querySelector('.card-thumb')?.remove();
+  });
 
   Object.entries(styleMap).forEach(([selector, style]) => {
     doc.querySelectorAll(selector).forEach(el => {
