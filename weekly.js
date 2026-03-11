@@ -974,7 +974,7 @@ if (previewOverlay) {
   });
 }
 
-/** Web HTML Download logic */
+/** Board Compatible HTML Download logic */
 async function downloadWebHtml() {
   const iframe = document.getElementById('previewIframe');
   if (!iframe || !iframe.contentDocument) {
@@ -982,27 +982,62 @@ async function downloadWebHtml() {
     return;
   }
 
-  const doc = iframe.contentDocument;
-  let htmlContent = doc.documentElement.outerHTML;
-
-  // Use DOMParser to manipulate htmlContent and remove "Back to List" button
-  const parser = new DOMParser();
-  const tempDoc = parser.parseFromString(htmlContent, 'text/html');
-  const nav = tempDoc.querySelector('.header-nav');
+  // Clone the document to manipulate it without affecting the preview
+  const doc = iframe.contentDocument.cloneNode(true);
+  
+  // 1. Remove unnecessary elements
+  const loader = doc.getElementById('loader');
+  if (loader) loader.remove();
+  
+  const nav = doc.querySelector('.header-nav');
   if (nav) nav.remove();
-  htmlContent = tempDoc.documentElement.outerHTML;
+  
+  // 2. Remove all script tags
+  doc.querySelectorAll('script').forEach(s => s.remove());
+  
+  // 3. Simple Style Inliner (Literal values based on viewer.css)
+  const styleMap = {
+    '.viewer-container': 'max-width: 800px; margin: 0 auto; padding: 20px 12px 48px; font-family: -apple-system, BlinkMacSystemFont, "Pretendard", sans-serif; background-color: #FAFAFA; color: #1F2937; line-height: 1.7;',
+    '.viewer-header': 'text-align: center; margin-bottom: 40px; padding-top: 16px;',
+    '.report-type-title': 'font-size: 24px; font-weight: 800; color: #002D54; margin-bottom: 8px;',
+    '.report-date-badge': 'display: inline-block; background: rgba(69, 63, 232, 0.08); color: #453FE8; padding: 6px 16px; border-radius: 99px; font-weight: 700; font-size: 14px;',
+    '.report-title': 'font-size: 32px; font-weight: 800; color: #002D54; line-height: 1.3; margin-bottom: 16px; word-break: keep-all;',
+    '.report-desc': 'font-size: 17px; color: #6B7280; line-height: 1.6; max-width: 90%; margin: 0 auto; word-break: keep-all;',
+    '.report-cover': 'width: 100%; border-radius: 16px; overflow: hidden; margin-bottom: 24px; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);',
+    '.report-cover img': 'width: 100%; height: auto; display: block; border-radius: 16px;',
+    '.report-section': 'margin-bottom: 32px;',
+    '.section-label': 'font-size: 19px; font-weight: 800; color: #44A4FF; margin-bottom: 12px; display: block;',
+    '.section-content': 'font-size: 16px; color: #1F2937; white-space: pre-wrap; word-break: keep-all; background: #FFFFFF; padding: 20px; border-radius: 12px; border: 1px solid rgba(0, 45, 84, 0.08);',
+    '.section-content.highlight-box': 'border-left: 4px solid #453FE8; background: #F8FAFF;',
+    '.section-image': 'margin: 24px 0; border-radius: 12px; overflow: hidden;',
+    '.section-image img': 'width: 100%; height: auto; display: block; border-radius: 12px;',
+    '.curation-area': 'margin-top: 48px;',
+    '.category-heading': 'font-size: 20px; font-weight: 800; color: #002D54; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #002D54;',
+    '.premium-article-card': 'display: flex; background: #FFFFFF; border-radius: 12px; border: 1px solid #E5E7EB; overflow: hidden; margin-bottom: 20px; text-decoration: none; color: inherit;',
+    '.premium-article-card.minimal .card-content': 'padding: 16px 20px;',
+    '.card-content': 'flex: 1; padding: 16px 20px; min-width: 0;',
+    '.card-title': 'font-size: 17px; font-weight: 800; color: #111827; margin-bottom: 8px; line-height: 1.4;',
+    '.card-summary': 'background-color: #F8FAFC; padding: 12px; border-radius: 8px; margin-bottom: 12px;',
+    '.summary-text': 'font-size: 14px; color: #4B5563; line-height: 1.5;',
+    '.card-footer': 'display: flex; justify-content: flex-end; padding-top: 10px; border-top: 1px dashed #E5E7EB;',
+    '.btn-read': 'display: inline-block; background-color: #FFFFFF; color: #453FE8; border: 1px solid #453FE8; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 700;',
+    '.section-note': 'font-size: 14px; color: #6B7280; padding: 0; border: none; background: transparent;',
+    '.source-link-item': 'display: block; padding: 10px 14px; background: rgba(0, 45, 84, 0.03); border-radius: 8px; text-decoration: none; color: #1F2937; margin-bottom: 8px; border: 1px solid rgba(0, 45, 84, 0.05);',
+    '.source-title': 'font-weight: 700; font-size: 14px; display: block;',
+    '.source-url': 'font-size: 12px; color: #6B7280; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;',
+  };
 
-  // Try to inline viewer.css for a self-contained file
-  try {
-    const cssRes = await fetch('./viewer.css');
-    if (cssRes.ok) {
-      const cssText = await cssRes.text();
-      // Replace the link tag with a style tag
-      htmlContent = htmlContent.replace(/<link rel="stylesheet" href="\.\/viewer\.css">/g, `<style>${cssText}</style>`);
-    }
-  } catch (e) {
-    console.warn('Failed to inline viewer.css, downloading with relative link:', e);
-  }
+  Object.entries(styleMap).forEach(([selector, style]) => {
+    doc.querySelectorAll(selector).forEach(el => {
+      const existing = el.getAttribute('style') || '';
+      el.setAttribute('style', style + ' ' + existing);
+    });
+  });
+
+  // 4. Hide elements that are still hidden in the preview
+  doc.querySelectorAll('[style*="display: none"]').forEach(el => el.remove());
+
+  let htmlContent = doc.documentElement.outerHTML;
 
   const dateStr = DOM.reportDate.value.replace(/-/g, '');
   const fileName = `Insight_Weekly_Web_${dateStr}.html`;
@@ -1012,7 +1047,7 @@ async function downloadWebHtml() {
   a.href = URL.createObjectURL(blob);
   a.download = fileName;
   a.click();
-  showToast('웹 HTML 다운로드 시작', 'success');
+  showToast('게시판용 HTML 다운로드 시작', 'success');
 }
 
 const btnDownloadWebHtml = document.getElementById('btnDownloadWebHtml');
