@@ -228,11 +228,19 @@
             </div>
         </header>
 
-        <div class="dashboard-search" style="gap: 16px; align-items: center;">
+        <div class="dashboard-search" style="flex-direction: column; gap: 20px; align-items: center;">
             <input type="date" id="searchInput" class="search-input" title="보고서 날짜 선택" autocomplete="off">
-            <button id="btnRunCrawler" class="btn-create-new" style="background: linear-gradient(135deg, #f59e0b, #ea580c); border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; height: 46px; padding: 0 24px;">
-                <span style="font-size: 1.2em;">🚀</span> 크롤러 실행
-            </button>
+            <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center;">
+                <button id="btnRunCrawler" class="btn-create-new" style="background: linear-gradient(135deg, #f59e0b, #ea580c); border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; height: 46px; padding: 0 24px;">
+                    <span style="font-size: 1.2em;">🚀</span> 크롤러 실행
+                </button>
+                <button id="btnRunDaily" class="btn-create-new" style="background: linear-gradient(135deg, #10b981, #059669); border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; height: 46px; padding: 0 24px;">
+                    <span style="font-size: 1.2em;">📰</span> 데일리 실행
+                </button>
+                <button id="btnRunWeekly" class="btn-create-new" style="background: linear-gradient(135deg, #453FE8, #7c3aed); border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; height: 46px; padding: 0 24px;">
+                    <span style="font-size: 1.2em;">📊</span> 위클리 실행
+                </button>
+            </div>
         </div>
 
         <div class="boards-grid">
