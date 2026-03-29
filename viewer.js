@@ -239,7 +239,8 @@ function renderReport(report, articles, type) {
                     contentEl.innerHTML = textVal;
                 } else if (sec.text === 'Source_List') {
                     // Source List Parsing: "출처명 | URL" -> 각 출처마다 개별 박스
-                    const lines = textVal.split('\n').filter(l => l.trim().length > 0);
+                    // 실제 개행(\n)과 이스케이프된 리터럴 \n 문자열 모두 처리
+                    const lines = textVal.split(/\r?\n|\\n/).filter(l => l.trim().length > 0);
                     let htmlList = '<div class="source-list-links">';
                     lines.forEach(line => {
                         const parts = line.replace(/^- /, '').split(' | ');
@@ -247,12 +248,12 @@ function renderReport(report, articles, type) {
                             const title = parts[0].trim();
                             const url = parts.slice(1).join(' | ').trim();
                             htmlList += `<a href="${url}" target="_blank" class="source-item">
-                                <span class="source-item-name">🔗 ${escapeHtml(title)}</span>
+                                <span class="source-item-name">${escapeHtml(title)}</span>
                                 <span class="source-item-url">${escapeHtml(url)}</span>
                             </a>`;
                         } else {
                             const rawText = line.replace(/^- /, '').trim();
-                            htmlList += `<span class="source-item no-link">${escapeHtml(rawText)}</span>`;
+                            if (rawText) htmlList += `<span class="source-item no-link">${escapeHtml(rawText)}</span>`;
                         }
                     });
                     htmlList += '</div>';
