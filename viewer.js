@@ -238,7 +238,7 @@ function renderReport(report, articles, type) {
                 if (sec.text === 'Section_Note') {
                     contentEl.innerHTML = textVal;
                 } else if (sec.text === 'Source_List') {
-                    // Source List Parsing: "Title | URL" -> <a> links
+                    // Source List Parsing: "출처명 | URL" -> 각 출처마다 개별 박스
                     const lines = textVal.split('\n').filter(l => l.trim().length > 0);
                     let htmlList = '<div class="source-list-links">';
                     lines.forEach(line => {
@@ -246,16 +246,13 @@ function renderReport(report, articles, type) {
                         if (parts.length >= 2) {
                             const title = parts[0].trim();
                             const url = parts.slice(1).join(' | ').trim();
-                            const linkClass = type === 'Weekly' ? 'source-link-item minimal' : 'source-link-item';
-                            htmlList += `<a href="${url}" target="_blank" class="${linkClass}">
-                                <span class="source-icon">🔗</span> 
-                                <div class="source-info">
-                                    <span class="source-title">${title}</span>
-                                    <span class="source-url">${url}</span>
-                                </div>
+                            htmlList += `<a href="${url}" target="_blank" class="source-item">
+                                <span class="source-item-name">🔗 ${escapeHtml(title)}</span>
+                                <span class="source-item-url">${escapeHtml(url)}</span>
                             </a>`;
                         } else {
-                            htmlList += `<div class="source-link-item">${line}</div>`;
+                            const rawText = line.replace(/^- /, '').trim();
+                            htmlList += `<span class="source-item no-link">${escapeHtml(rawText)}</span>`;
                         }
                     });
                     htmlList += '</div>';

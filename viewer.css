@@ -351,88 +351,56 @@ img {
     margin-bottom: 0;
 }
 
-/* Source List Links */
+/* Source List — compact pill-style, one box per source */
 .source-list-links {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 6px;
 }
 
-.source-list-links a {
-    text-decoration: none !important;
-}
-
-.source-link-item {
+.source-item {
     display: flex;
     align-items: center;
-    padding: 14px 18px;
+    gap: 10px;
+    padding: 7px 12px;
+    border-radius: 7px;
     background: rgba(0, 45, 84, 0.03);
-    border-radius: 10px;
+    border: 1px solid rgba(0, 45, 84, 0.07);
     text-decoration: none;
     color: var(--text-main);
-    transition: all 0.2s ease;
-    border: 1px solid rgba(0, 45, 84, 0.05);
+    transition: background 0.15s, border-color 0.15s;
+    line-height: 1.4;
 }
 
-/* Minimal Source Link for Weekly */
-.source-link-item.minimal {
-    padding: 8px 12px;
-    border-radius: 6px;
-}
-
-.source-link-item.minimal .source-icon {
-    font-size: 14px;
-    margin-right: 8px;
-}
-
-.source-link-item.minimal .source-title {
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.source-link-item.minimal .source-url {
-    font-size: 11px;
-}
-
-.source-link-item:hover {
+.source-item:hover {
     background: #fff;
     border-color: var(--color-primary);
-    box-shadow: 0 4px 12px rgba(69, 63, 232, 0.1);
     color: var(--color-primary);
 }
 
-.source-icon {
-    font-size: 16px;
-    margin-right: 12px;
-}
-
-.source-title {
+.source-item-name {
+    font-size: 13px;
     font-weight: 600;
-    font-size: 15px;
-    line-height: 1.4;
-    color: var(--text-main);
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
-.source-info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+.source-item-url {
+    font-size: 12px;
+    color: var(--text-muted);
     overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     flex: 1;
 }
 
-.source-url {
-    font-size: 13px;
-    color: var(--text-muted);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    transition: color 0.2s ease;
+.source-item:hover .source-item-url {
+    color: var(--color-primary);
 }
 
-.source-link-item:hover .source-title,
-.source-link-item:hover .source-url {
-    color: var(--color-primary);
+.source-item.no-link {
+    color: var(--text-muted);
+    cursor: default;
 }
 
 .section-image {
